@@ -25,7 +25,15 @@ public:
 	*/
 	BYTE* GetColorBuffer();
 	// Get pointer to color buffer without alloc new memory. But could show half-rendered frames.
-	BYTE* GetUnreliableColorBuffer();
+	inline BYTE* GetUnreliableColorBuffer() const
+	{
+		return colorBuffer;
+	}
+	// Get pointer to depth buffer without alloc new memory. But could show half-rendered frames.
+	inline BYTE* GetUnreliableDepthBuffer() const
+	{
+		return depthBuffer;
+	}
 	// Return width of color buffer in pixels
 	inline int GetWidthColor() const
 	{
@@ -39,21 +47,24 @@ public:
 
 private:
 	// handle to control kinect's buffers
-	HANDLE colorVideoStreamHandle;
+	HANDLE colorVideoStreamHandle, depthStremHandle;
 	// handles to control signals and the kinect-thread
 	HANDLE kinectThreadSignalStop, kinectThread;
 	// kinect related events
-	HANDLE nextVideoFrameEvent; // when a next frame is ready to be retrieved
+	HANDLE nextVideoFrameEvent, nextDepthFrameEvent; // when a next frame is ready to be retrieved
 
 	// main function of the kinect thread
 	static DWORD WINAPI KinectThread(LPVOID pParam);
 	// to be called when there's a new video frame to render
 	void NewVideoFrame();
+	// to be called when there's a new depth frame
+	void NewDepthFrame();
 
-	void InvertColorBuffer(BYTE* rawBuffer);
+	void InvertBufferLines(BYTE* rawBuffer, BYTE* newBuffer,int width, int height, int bpc);
+	void InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, int height);
 
 	// the buffes
-	BYTE* colorBuffer;
+	BYTE* colorBuffer, *depthBuffer;
 	int colorBufferWidth, colorBufferHeight;
 
 	// critical section
