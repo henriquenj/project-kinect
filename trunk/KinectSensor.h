@@ -26,6 +26,16 @@ public:
 	BYTE* GetColorBuffer();
 	// Get pointer to color buffer without alloc new memory. But could show half-rendered frames.
 	BYTE* GetUnreliableColorBuffer();
+	// Return width of color buffer in pixels
+	inline int GetWidthColor() const
+	{
+		return colorBufferWidth;
+	}
+	// Return Height of color buffer in pixels
+	inline int GetHeightColor()const
+	{
+		return colorBufferHeight;
+	}
 
 private:
 	// handle to control kinect's buffers

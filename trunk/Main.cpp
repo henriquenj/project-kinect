@@ -5,8 +5,8 @@
 
 #include "KinectSensor.h"
 
-#define WINDOWWIDTH 1280
-#define WINDOWHEIGHT 1024
+#define WINDOWWIDTH 640
+#define WINDOWHEIGHT 480
 
 KinectSensor* kinect;
 
@@ -15,19 +15,19 @@ void RenderCallback()
 	Sleep(5);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 
 	// define position
-	//glRasterPos2i(-1,-1);
+	//glRasterPos2i(1,1);
 	//glRasterPos2f(-1.0f,-1.0f);
-	glRasterPos2i(0,WINDOWHEIGHT);
+	glRasterPos2i(0,WINDOWHEIGHT-1);
 
 	// get kinect buffer
 	//BYTE* colorBuffer = kinect->GetColorBuffer();
 	// draw on screen buffer from kinect sensor
-	glDrawPixels(WINDOWWIDTH,WINDOWHEIGHT,GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
+	glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 
 	//delete colorBuffer;
 
@@ -64,7 +64,7 @@ void InitApp()
 	glMatrixMode(GL_MODELVIEW);
 
 
-	kinect = new KinectSensor(RESOLUTION_1280X1024);
+	kinect = new KinectSensor(RESOLUTION_640X480);
 }
 
 void IdleCallback()
