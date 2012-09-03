@@ -8,6 +8,7 @@ KinectSensor::KinectSensor(int colorBufferResolution)
 	
 	// create events
 	nextVideoFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+	nextDepthFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 	// init NUI library
 	HRESULT hr = NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH | NUI_INITIALIZE_FLAG_USES_COLOR);
 
@@ -37,13 +38,24 @@ KinectSensor::KinectSensor(int colorBufferResolution)
 
 	if (FAILED(hr))
 	{
-		MessageBoxA(0,"Failed to load Kinect streams, check if your Kinect ir working properly", "Error", (MB_OK | MB_ICONEXCLAMATION));
+		MessageBoxA(0,"Failed to load Kinect color streams, check if your Kinect ir working properly", "Error", (MB_OK | MB_ICONEXCLAMATION));
 		exit(0);
 	}
 
-	// init the buffer with black screen
+	// open depth buffer
+	hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,NUI_IMAGE_RESOLUTION_320x240,0,2,nextDepthFrameEvent,&depthStremHandle);
+
+	if (FAILED(hr))
+	{
+		MessageBoxA(0,"Failed to load Kinect depth stream, check if your Kinect ir working properly","Error",(MB_OK | MB_ICONEXCLAMATION));
+	}
+
+	// init color buffer with black screen
 	colorBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
 	memset(colorBuffer,0,colorBufferWidth * colorBufferHeight * 4);
+	// ...as well the depth buffer
+	depthBuffer = new BYTE[320 * 240];
+	memset(depthBuffer,0,320 * 240);
 
 	//init critical section
 	InitializeCriticalSectionAndSpinCount(&criticalSection,4096);
@@ -85,7 +97,7 @@ void KinectSensor::NewVideoFrame()
 		EnterCriticalSection(&criticalSection);
 		// copy to local data
 		// and also invert data
-		InvertColorBuffer((BYTE*)LockedRect.pBits);
+		InvertBufferBGRA((BYTE*)LockedRect.pBits,colorBuffer,colorBufferWidth,colorBufferHeight);
 		// unlock thread
 		LeaveCriticalSection(&criticalSection);
 	}
@@ -97,14 +109,51 @@ void KinectSensor::NewVideoFrame()
 	NuiImageStreamReleaseFrame( colorVideoStreamHandle, pImageFrame );
 }
 
+void KinectSensor::NewDepthFrame()
+{
+	//create struct to hold frame data
+	const NUI_IMAGE_FRAME * pImageFrame = NULL;
+
+	// retrieve frame
+	HRESULT hr = NuiImageStreamGetNextFrame(depthStremHandle,0,&pImageFrame);
+
+	if (FAILED(hr))
+	{
+		MessageBoxA(0,"Failed to load Kinect streams, check if your Kinect ir working properly", "Error", (MB_OK | MB_ICONEXCLAMATION));
+	}
+
+	NuiImageBuffer* pTexture = pImageFrame->pFrameTexture;
+	KINECT_LOCKED_RECT LockedRect;
+
+	pTexture->LockRect(0,&LockedRect, NULL,0);
+
+	if( LockedRect.Pitch != 0 )
+    {
+		// critical section
+		EnterCriticalSection(&criticalSection);
+		//copy to local data
+		//memcpy(depthBuffer,(BYTE*) LockedRect.pBits,320 * 240 * sizeof(BYTE));
+		InvertBufferLines((BYTE*) LockedRect.pBits,depthBuffer,320,240,1);
+
+		LeaveCriticalSection(&criticalSection);
+	}
+	else 
+	{
+		MessageBoxA(0,"Buffer length of received texture is bogus\r\n","Error",MB_OK | MB_ICONEXCLAMATION);
+	}
+
+	NuiImageStreamReleaseFrame(depthStremHandle,pImageFrame);
+
+}
 DWORD KinectSensor::KinectThread(LPVOID pParam)
 {
 	// convert pointer type
 	KinectSensor* pThis = (KinectSensor*)pParam;
 	// put events in a array to be used by WaitForMultipleObjects function
-	HANDLE events[2];
+	HANDLE events[3];
 	events[0] = pThis->kinectThreadSignalStop;
 	events[1] = pThis->nextVideoFrameEvent;
+	events[2] = pThis->nextDepthFrameEvent;
 
 	int nEventIdx;
 
@@ -112,7 +161,7 @@ DWORD KinectSensor::KinectThread(LPVOID pParam)
 	while(true)
 	{
 		// wait for an event
-		nEventIdx = WaitForMultipleObjects(sizeof(events)/sizeof(events[0]),events,false,100);
+		nEventIdx = WaitForMultipleObjects(sizeof(events)/sizeof(events[0]),events,FALSE,100);
 		
 		if (nEventIdx == 0)
 		{
@@ -125,6 +174,12 @@ DWORD KinectSensor::KinectThread(LPVOID pParam)
 		{
 			// this means that there's a new video frame for us to render
 			pThis->NewVideoFrame();
+		}
+		
+		if (nEventIdx == 2)
+		{
+			// this means that there's a new depth frame for us
+			pThis->NewDepthFrame();
 		}
 	}
 	return 0;
@@ -143,19 +198,26 @@ BYTE* KinectSensor::GetColorBuffer()
 	return newBuffer;
 }
 
-BYTE* KinectSensor::GetUnreliableColorBuffer()
+void KinectSensor::InvertBufferLines(BYTE* rawBuffer, BYTE* newBuffer,int width, int height, int bpc)
 {
-	return colorBuffer;
+
+	int lineSize = width * bpc;
+	// swap lines only
+	for (int p = 0, u = height-1; p < height-1; p++, u--)
+	{
+		memcpy(&(newBuffer[u * width * bpc]),&(rawBuffer[p * width * bpc]),lineSize);
+	}
 }
 
-void KinectSensor::InvertColorBuffer(BYTE* rawBuffer)
+void KinectSensor::InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, int height)
 {
-
-	int lineSize = colorBufferWidth * 4;
-	// swap lines
-	for (int p = 0, u = colorBufferHeight-1; p < colorBufferHeight-1; p++, u--)
+	// invert data
+	for (int j = 0, p = width * height * 4; j < width * height * 4, p != 0; j += 4, p -= 4)
 	{
-		memcpy(&(colorBuffer[u * colorBufferWidth * 4]),&(rawBuffer[p * colorBufferWidth * 4]),lineSize);
+		newBuffer[j] = rawBuffer[p];
+		newBuffer[j+1] = rawBuffer[p+1];
+		newBuffer[j+2] = rawBuffer[p+2];
+		newBuffer[j+3] = rawBuffer[p+3];
 	}
 }
 

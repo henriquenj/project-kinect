@@ -29,6 +29,8 @@ void RenderCallback()
 	// draw on screen buffer from kinect sensor
 	glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 
+	glDrawPixels(320,240,GL_LUMINANCE,GL_UNSIGNED_BYTE,kinect->GetUnreliableDepthBuffer());
+
 	//delete colorBuffer;
 
 	glutSwapBuffers();
