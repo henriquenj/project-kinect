@@ -36,7 +36,7 @@ public:
 		return colorBuffer;
 	}
 	// Get pointer to depth buffer without alloc new memory. But could show half-rendered frames.
-	inline const BYTE* GetUnreliableDepthBuffer() const
+	inline const int* GetUnreliableDepthBuffer() const
 	{
 		return depthBuffer;
 	}
@@ -80,7 +80,8 @@ private:
 	void InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, int height);
 
 	// the buffes
-	BYTE* colorBuffer, *depthBuffer;
+	BYTE* colorBuffer;
+	int* depthBuffer;
 	int colorBufferWidth, colorBufferHeight, depthBufferWidth, depthBufferHeight;
 
 	// critical section

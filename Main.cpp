@@ -26,18 +26,18 @@ void RenderCallback()
 	glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 
 	// get depth data
-	BYTE* depthBuffer = kinect->GetDepthBuffer();
-	// process data to be ready to render
-	for (int i = 0; i < kinect->GetWidthDepth() * kinect->GetHeightDepth(); i++)
-	{
-		USHORT RealDepth = ((USHORT)depthBuffer[i] & 0xfff8) >> 3;
-		//depthBuffer[i] = (255 - (BYTE)(256*RealDepth/0x0fff)) / 2;
-		depthBuffer[i] = RealDepth * 2;
-	}
+	//BYTE* depthBuffer = kinect->GetDepthBuffer();
+	//// process data to be ready to render
+	//for (int i = 0; i < kinect->GetWidthDepth() * kinect->GetHeightDepth(); i++)
+	//{
+	//	USHORT RealDepth = ((USHORT)depthBuffer[i] & 0xfff8) >> 3;
+	//	//depthBuffer[i] = (255 - (BYTE)(256*RealDepth/0x0fff)) / 2;
+	//	depthBuffer[i] = RealDepth * 2;
+	//}
 
-	glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_UNSIGNED_BYTE,depthBuffer);
+	glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_INT,kinect->GetUnreliableDepthBuffer());
 
-	delete depthBuffer;
+	//delete depthBuffer;
 
 	glutSwapBuffers();
 }
