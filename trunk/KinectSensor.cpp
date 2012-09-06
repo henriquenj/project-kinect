@@ -67,7 +67,7 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	colorBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
 	memset(colorBuffer,0,colorBufferWidth * colorBufferHeight * 4);
 	// ...as well the depth buffer
-	depthBuffer = new BYTE[depthBufferWidth * depthBufferHeight];
+	depthBuffer = new int[depthBufferWidth * depthBufferHeight];
 	memset(depthBuffer,0,depthBufferWidth * depthBufferHeight);
 
 	//init critical section
@@ -145,7 +145,8 @@ void KinectSensor::NewDepthFrame()
 		// critical section
 		EnterCriticalSection(&criticalSection);
 		//copy to local data
-		InvertBufferLines((BYTE*) LockedRect.pBits,depthBuffer,depthBufferWidth,depthBufferHeight,1);
+		//InvertBufferLines((BYTE*) LockedRect.pBits,(BYTE*)depthBuffer,depthBufferWidth,depthBufferHeight,1);
+		memcpy(depthBuffer,LockedRect.pBits,depthBufferWidth*depthBufferHeight*sizeof(int));
 
 		LeaveCriticalSection(&criticalSection);
 	}
