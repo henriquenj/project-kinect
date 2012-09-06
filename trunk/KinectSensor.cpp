@@ -1,7 +1,7 @@
 #include "KinectSensor.h"
 
 
-KinectSensor::KinectSensor(int colorBufferResolution)
+KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 {
 
 	// executes setup with the NUI api
@@ -20,6 +20,7 @@ KinectSensor::KinectSensor(int colorBufferResolution)
 
 	// check for programmer error in the setup
 	assert((colorBufferResolution == RESOLUTION_1280X1024) || (colorBufferResolution == RESOLUTION_640X480));
+	assert((depthBufferResolution == RESOLUTION_320X240) || (depthBufferResolution == RESOLUTION_640X480));
 
 	// open streams
 	if (colorBufferResolution == RESOLUTION_640X480)
@@ -43,19 +44,31 @@ KinectSensor::KinectSensor(int colorBufferResolution)
 	}
 
 	// open depth buffer
-	hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,NUI_IMAGE_RESOLUTION_320x240,0,2,nextDepthFrameEvent,&depthStremHandle);
+	if (depthBufferResolution == RESOLUTION_320X240)
+	{
+		hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,NUI_IMAGE_RESOLUTION_320x240,0,2,nextDepthFrameEvent,&depthStremHandle);
+		depthBufferWidth = 320;
+		depthBufferHeight = 240;
+	}
+	else // so must be 640x480
+	{
+		hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,NUI_IMAGE_RESOLUTION_640x480,0,2,nextDepthFrameEvent,&depthStremHandle);
+		depthBufferWidth = 640;
+		depthBufferHeight = 480;
+	}
 
 	if (FAILED(hr))
 	{
 		MessageBoxA(0,"Failed to load Kinect depth stream, check if your Kinect ir working properly","Error",(MB_OK | MB_ICONEXCLAMATION));
+		exit(0);
 	}
 
 	// init color buffer with black screen
 	colorBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
 	memset(colorBuffer,0,colorBufferWidth * colorBufferHeight * 4);
 	// ...as well the depth buffer
-	depthBuffer = new BYTE[320 * 240];
-	memset(depthBuffer,0,320 * 240);
+	depthBuffer = new BYTE[depthBufferWidth * depthBufferHeight];
+	memset(depthBuffer,0,depthBufferWidth * depthBufferHeight);
 
 	//init critical section
 	InitializeCriticalSectionAndSpinCount(&criticalSection,4096);
@@ -70,7 +83,7 @@ KinectSensor::~KinectSensor(void)
 {
 	DeleteCriticalSection(&criticalSection);
 
-	// TODO: make all the NUI api finalization bullshit
+	
 }
 
 void KinectSensor::NewVideoFrame()
@@ -132,8 +145,7 @@ void KinectSensor::NewDepthFrame()
 		// critical section
 		EnterCriticalSection(&criticalSection);
 		//copy to local data
-		//memcpy(depthBuffer,(BYTE*) LockedRect.pBits,320 * 240 * sizeof(BYTE));
-		InvertBufferLines((BYTE*) LockedRect.pBits,depthBuffer,320,240,1);
+		InvertBufferLines((BYTE*) LockedRect.pBits,depthBuffer,depthBufferWidth,depthBufferHeight,1);
 
 		LeaveCriticalSection(&criticalSection);
 	}
@@ -192,6 +204,19 @@ BYTE* KinectSensor::GetColorBuffer()
 	// copy data
 	BYTE* newBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
 	memcpy(newBuffer,colorBuffer,colorBufferWidth*colorBufferHeight*4*sizeof(BYTE));
+
+	LeaveCriticalSection(&criticalSection);
+
+	return newBuffer;
+}
+
+BYTE* KinectSensor::GetDepthBuffer()
+{
+	// lock thread
+	EnterCriticalSection(&criticalSection);
+	// copy data
+	BYTE* newBuffer = new BYTE[depthBufferWidth * depthBufferHeight];
+	memcpy(newBuffer,depthBuffer,depthBufferWidth * depthBufferHeight * sizeof(BYTE));
 
 	LeaveCriticalSection(&criticalSection);
 
