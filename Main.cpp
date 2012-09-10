@@ -48,6 +48,7 @@ void KeyboardCallback(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 27: // esc key
+		delete kinect;
 		exit(0);
 		break;
 	}
@@ -62,7 +63,7 @@ void InitApp()
 	glMatrixMode(GL_MODELVIEW);
 
 
-	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_320X240);
+	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
 }
 
 void IdleCallback()
@@ -86,7 +87,7 @@ int main()
 	glutDisplayFunc(RenderCallback);
 	glutKeyboardFunc(KeyboardCallback);
 	glutIdleFunc(IdleCallback);
-
+	
 	
 	glutMainLoop();
 
