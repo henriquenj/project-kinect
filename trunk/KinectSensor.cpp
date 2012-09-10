@@ -85,8 +85,38 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 
 KinectSensor::~KinectSensor(void)
 {
+	// dealloc everything related with the kinect device
+
 	DeleteCriticalSection(&criticalSection);
 
+	// stop the kinect thread
+	if (kinectThreadSignalStop != NULL)
+	{
+		SetEvent(kinectThreadSignalStop);
+
+		// Wait for thread to stop
+		if(kinectThread!=NULL)
+        {
+			WaitForSingleObject(kinectThread,INFINITE);
+            CloseHandle(kinectThread);
+        }
+
+		CloseHandle(kinectThreadSignalStop);
+	}
+
+	NuiShutdown();
+
+	// "close" events
+	if( nextDepthFrameEvent && ( nextDepthFrameEvent != INVALID_HANDLE_VALUE ) )
+    {
+        CloseHandle( nextDepthFrameEvent );
+        nextDepthFrameEvent = NULL;
+    }
+	if( nextVideoFrameEvent && ( nextVideoFrameEvent != INVALID_HANDLE_VALUE ) )
+    {
+        CloseHandle( nextVideoFrameEvent );
+        nextVideoFrameEvent = NULL;
+    }
 }
 
 void KinectSensor::NewVideoFrame()
