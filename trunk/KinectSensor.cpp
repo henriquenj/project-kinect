@@ -3,7 +3,6 @@
 
 KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 {
-
 	// executes setup with the NUI api
 	
 	// create events
@@ -67,8 +66,13 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	colorBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
 	memset(colorBuffer,0,colorBufferWidth * colorBufferHeight * 4);
 	// ...as well the depth buffer
-	depthBuffer = new int[depthBufferWidth * depthBufferHeight];
-	memset(depthBuffer,0,depthBufferWidth * depthBufferHeight);
+	depthBuffer = new BYTE[depthBufferWidth * depthBufferHeight * 2];
+	memset(depthBuffer,0,depthBufferWidth * depthBufferHeight * 2);
+	//... and the other depth buffes
+	processedBuffer = new int[depthBufferWidth * depthBufferHeight];
+	memset(processedBuffer,0,depthBufferWidth * depthBufferHeight * sizeof(int));
+	depthBufferToRender = new BYTE[depthBufferWidth * depthBufferHeight];
+	memset(depthBufferToRender,0,depthBufferWidth * depthBufferHeight);
 
 	//init critical section
 	InitializeCriticalSectionAndSpinCount(&criticalSection,4096);
@@ -83,7 +87,6 @@ KinectSensor::~KinectSensor(void)
 {
 	DeleteCriticalSection(&criticalSection);
 
-	
 }
 
 void KinectSensor::NewVideoFrame()
@@ -145,8 +148,14 @@ void KinectSensor::NewDepthFrame()
 		// critical section
 		EnterCriticalSection(&criticalSection);
 		//copy to local data
-		//InvertBufferLines((BYTE*) LockedRect.pBits,(BYTE*)depthBuffer,depthBufferWidth,depthBufferHeight,1);
-		memcpy(depthBuffer,LockedRect.pBits,depthBufferWidth*depthBufferHeight*sizeof(int));
+		InvertBufferLines((BYTE*) LockedRect.pBits,(BYTE*)depthBuffer,depthBufferWidth,depthBufferHeight,2);
+		// convert to milimiter and put in the processed buffer
+		for (int i = 0; i < depthBufferWidth * depthBufferHeight * 2; i+=2)
+		{
+			int d = depthBuffer[i+1];
+			d = d << 8;
+			processedBuffer[i/2] = d;
+		}
 
 		LeaveCriticalSection(&criticalSection);
 	}
@@ -204,20 +213,20 @@ BYTE* KinectSensor::GetColorBuffer()
 	EnterCriticalSection(&criticalSection);
 	// copy data
 	BYTE* newBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
-	memcpy(newBuffer,colorBuffer,colorBufferWidth*colorBufferHeight*4*sizeof(BYTE));
+	memcpy(newBuffer,colorBuffer,colorBufferWidth*colorBufferHeight*4);
 
 	LeaveCriticalSection(&criticalSection);
 
 	return newBuffer;
 }
 
-BYTE* KinectSensor::GetDepthBuffer()
+int* KinectSensor::GetDepthBuffer()
 {
 	// lock thread
 	EnterCriticalSection(&criticalSection);
 	// copy data
-	BYTE* newBuffer = new BYTE[depthBufferWidth * depthBufferHeight];
-	memcpy(newBuffer,depthBuffer,depthBufferWidth * depthBufferHeight * sizeof(BYTE));
+	int* newBuffer = new int[depthBufferWidth * depthBufferHeight];
+	memcpy(newBuffer,processedBuffer,depthBufferWidth * depthBufferHeight * sizeof(int));
 
 	LeaveCriticalSection(&criticalSection);
 
@@ -245,5 +254,17 @@ void KinectSensor::InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, 
 		newBuffer[j+2] = rawBuffer[p+2];
 		newBuffer[j+3] = rawBuffer[p+3];
 	}
+}
+
+BYTE* KinectSensor::GetDepthBufferToRender()
+{
+	// copy values only if this funcion is actually called
+	for (int i = 0; i < depthBufferWidth * depthBufferHeight; i++)
+	{
+		BYTE l = 255 - (BYTE)(256*processedBuffer[i]/0x0fff);
+		depthBufferToRender[i] = l / 2;
+	}
+
+	return depthBufferToRender;
 }
 
