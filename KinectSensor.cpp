@@ -117,6 +117,12 @@ KinectSensor::~KinectSensor(void)
         CloseHandle( nextVideoFrameEvent );
         nextVideoFrameEvent = NULL;
     }
+
+	// delete memory 
+	delete colorBuffer;
+	delete depthBuffer;
+	delete processedBuffer;
+	delete depthBufferToRender;
 }
 
 void KinectSensor::NewVideoFrame()
