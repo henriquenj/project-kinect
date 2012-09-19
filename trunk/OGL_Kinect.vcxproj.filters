@@ -12,9 +12,15 @@
     <ClCompile Include="KinectSensor.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="ModelBuilder.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelBuilder.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
