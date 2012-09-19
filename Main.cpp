@@ -4,11 +4,13 @@
 #include <gl\glut.h>
 
 #include "KinectSensor.h"
+#include "ModelBuilder.h"
 
 #define WINDOWWIDTH 640
 #define WINDOWHEIGHT 480
 
-KinectSensor* kinect;
+KinectSensor* kinect = NULL;
+ModelBuilder* model = NULL;
 
 void RenderCallback()
 {
@@ -54,6 +56,14 @@ void KeyboardCallback(unsigned char key, int x, int y)
 	}
 }
 
+void Menu(int option)
+{
+	if (option == 0)
+	{
+		// call generate points to build a model
+		model->GeneratePoints();
+	}
+}
 void InitApp()
 {
 
@@ -62,8 +72,13 @@ void InitApp()
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
 
+	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_320X240);
+	model = new ModelBuilder(kinect);
 
-	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
+	// menus
+	int menu = glutCreateMenu(Menu);
+	glutAddMenuEntry("Generate Model",0);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
 void IdleCallback()
