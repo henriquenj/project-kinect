@@ -3,10 +3,10 @@
 #define __MODEL_BUILDER_HEADER__
 
 #include <vector>
+#include <fstream>
 
 #include "glm\glm.hpp"
 #include "KinectSensor.h"
-
 
 
 // class that generate geometry data from Kinect buffers
@@ -18,6 +18,8 @@ public:
 
 	// Generate points using the last depth buffer avaiable. WARNING: this will ERASE the previously created model 
 	void GeneratePoints();
+	// Write model on a .obj file using last model builded by GeneratePoints
+	void WriteModelOnFile(char * filename);
 
 private:
 	KinectSensor* sensor; // local reference
