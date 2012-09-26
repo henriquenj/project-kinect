@@ -4,13 +4,9 @@
 
 #include <vector>
 
+#include "glm\glm.hpp"
 #include "KinectSensor.h"
 
-// TODO: start to use some real math api like GLM
-struct Vertex
-{
-	float x,y,z;
-};
 
 
 // class that generate geometry data from Kinect buffers
@@ -26,7 +22,7 @@ public:
 private:
 	KinectSensor* sensor; // local reference
 	// vector of points
-	std::vector<Vertex> points;
+	std::vector<glm::vec3> points;
 };
 
 
