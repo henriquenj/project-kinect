@@ -48,7 +48,7 @@ void ModelBuilder::GeneratePoints()
 	for (int b = 0; b < bufferSize; b++)
 	{
 		// put points in vector
-		Vertex tVertex;
+		glm::vec3 tVertex;
 		tVertex.x = b % sensor->GetWidthDepth();
 		tVertex.y = b / sensor->GetWidthDepth();
 		// make the max value being the X size of the buffer
