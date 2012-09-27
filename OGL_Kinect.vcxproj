@@ -85,10 +85,12 @@
     <ClCompile Include="KinectSensor.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ModelBuilder.cpp" />
+    <ClCompile Include="UtilitiesFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h" />
     <ClInclude Include="ModelBuilder.h" />
+    <ClInclude Include="UtilitiesFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

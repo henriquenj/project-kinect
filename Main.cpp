@@ -5,6 +5,7 @@
 
 #include "KinectSensor.h"
 #include "ModelBuilder.h"
+#include "UtilitiesFunctions.h"
 
 #define WINDOWWIDTH 640
 #define WINDOWHEIGHT 480
@@ -62,6 +63,12 @@ void Menu(int option)
 	{
 		// call generate points to build a model
 		model->GeneratePoints();
+		// ask to the user to point a file 
+		std::string s_filename;
+		const char * filename = ShowFileDialog(0,DialogSave,"OBJ Files (*.obj)","*.obj");
+		if (filename != NULL) {s_filename = filename;}
+		// write on a file
+		model->WriteModelOnFile(s_filename);
 	}
 }
 void InitApp()
@@ -72,7 +79,7 @@ void InitApp()
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
 
-	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_320X240);
+	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
 	model = new ModelBuilder(kinect);
 
 	// menus

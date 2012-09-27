@@ -29,7 +29,7 @@ public:
 	*/
 	BYTE* GetColorBuffer();
 	/* Get depth buffer from Kinect device ready for rendering using some render device like OpenGL. This method doens't alloc new memory, but could show half-rendered frames
-	Each pixels is stored as a unsigned char and have 0-255 range.
+	Each pixel is stored as a unsigned char and has 0-255 range.
 	*/
 	BYTE* GetDepthBufferToRender();
 	// Get depth buffer from Kinect device where each vector position hold the distance of this pixel to device in milimeters. WARNING: it's your responsability to delete this memory!
