@@ -18,8 +18,8 @@ public:
 
 	// Generate points using the last depth buffer avaiable. WARNING: this will ERASE the previously created model 
 	void GeneratePoints();
-	// Write model on a .obj file using last model builded by GeneratePoints
-	void WriteModelOnFile(char * filename);
+	// Write model on a .obj file using last model builded by GeneratePoints.
+	void WriteModelOnFile(std::string &filename);
 
 private:
 	KinectSensor* sensor; // local reference
