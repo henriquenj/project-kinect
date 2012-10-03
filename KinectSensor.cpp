@@ -18,8 +18,10 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	}
 
 	// check for programmer error in the setup
-	assert((colorBufferResolution == RESOLUTION_1280X1024) || (colorBufferResolution == RESOLUTION_640X480));
-	assert((depthBufferResolution == RESOLUTION_320X240) || (depthBufferResolution == RESOLUTION_640X480));
+	assert((colorBufferResolution == RESOLUTION_1280X1024) || (colorBufferResolution == RESOLUTION_640X480) &&
+			"Wrong resolution set up for the color buffer!");
+	assert((depthBufferResolution == RESOLUTION_320X240) || (depthBufferResolution == RESOLUTION_640X480)
+			&& "Wrong resolution set up for the depth buffer!");
 
 	// open streams
 	if (colorBufferResolution == RESOLUTION_640X480)

@@ -4,7 +4,7 @@
 ModelBuilder::ModelBuilder(KinectSensor* sensor)
 {
 	// to prevent silly errors
-	assert (sensor != NULL);
+	assert (sensor != NULL && "You must init the sensor!");
 
 	this->sensor = sensor;
 }
