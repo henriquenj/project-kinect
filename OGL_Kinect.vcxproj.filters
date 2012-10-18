@@ -18,6 +18,9 @@
     <ClCompile Include="UtilitiesFunctions.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="BufferProcess.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h">
@@ -27,6 +30,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="UtilitiesFunctions.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferProcess.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
