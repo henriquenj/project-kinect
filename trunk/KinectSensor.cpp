@@ -1,6 +1,5 @@
 #include "KinectSensor.h"
 
-
 KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 {
 	// executes setup with the NUI api
