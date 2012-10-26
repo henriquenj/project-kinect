@@ -12,6 +12,8 @@
 
 KinectSensor* kinect = NULL;
 ModelBuilder* model = NULL;
+BYTE* image = NULL;
+glm::uvec2 size;
 
 void RenderCallback()
 {
@@ -26,12 +28,12 @@ void RenderCallback()
 	glRasterPos2i(0,WINDOWHEIGHT-1);
 
 	// draw on screen buffer from kinect sensor
-	glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
+	//glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 
 
-	glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_BYTE,kinect->GetDepthBufferToRender());
-
-
+	//glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_BYTE,kinect->GetDepthBufferToRender());
+	glDrawPixels(size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,image);
+	
 	glutSwapBuffers();
 }
 
@@ -79,8 +81,16 @@ void InitApp()
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
 
-	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
-	model = new ModelBuilder(kinect);
+	//kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
+	//model = new ModelBuilder(kinect);
+
+	const char * filename = ShowFileDialog(0,DialogOpen,"PNG Files (*.png)","*.png");
+	if (filename == NULL){exit(0);}
+	else
+	{
+		//load png file
+		image = LoadPng(filename,size);
+	}
 
 	// menus
 	int menu = glutCreateMenu(Menu);
