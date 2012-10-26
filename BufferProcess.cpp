@@ -22,6 +22,8 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 
 	// the max distance between a given marker and a given pixel to be considered part of that area is defined by MAXDISTANCE
 	//CONTINUAR SEMANA QUE VEM
+
+	return NULL;
 }
 
 void BufferProcess::AddMarker(glm::vec3 marker)

@@ -5,14 +5,11 @@
 
 #define _CRT_SECURE_NO_WARNINGS //disable this shit
 
-// defines for libpng
-#define PNG_STDIO_SUPPORTED
-#define PNG_SEQUENTIAL_READ_SUPPORTED
-
 #include <Windows.h>
 #include <commdlg.h> // For GetSaveFileName(), GetOpenFileName(), Etc.
 #include <stdio.h>
 #include <setjmp.h>
+#include "glm\glm.hpp"
 #include "png.h"
 
 // File Dialog Types:
@@ -44,8 +41,10 @@ const char * ShowFileDialog(/* Optional */void * window, int type, const char * 
 //	// User probably clicked the cancel button, no file returned...
 //}
 
-// Load a png file given a file name, return buffer. WARNING: you must delete this memory
-int* LoadPng(const char * file_name);
+
+
+/* Load a png file given a file name, return buffer and fills the size vector. WARNING: you must delete this memory */
+BYTE* LoadPng(const char * file_name, glm::uvec2 &size);
 // courtesy from this website http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures#A_simple_libpng_example
 
 

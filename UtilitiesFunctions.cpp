@@ -1,7 +1,7 @@
 // define functions here to prevent link errors
 
-
 #include "UtilitiesFunctions.h"
+
 // for the documentation, see UtilitiesFunction.h
 
 const char * ShowFileDialog(void * window, int type, const char * filterDesc, const char * extFilter)
@@ -84,7 +84,7 @@ const char * ShowFileDialog(void * window, int type, const char * filterDesc, co
 }
 
 
-int* LoadPng(const char * file_name)
+BYTE* LoadPng(const char * file_name,glm::uvec2 &size)
 {
 	png_byte header[8];
 
@@ -203,17 +203,21 @@ int* LoadPng(const char * file_name)
     png_read_image(png_ptr, row_pointers);
 
     // Generate the OpenGL texture object
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, temp_width, temp_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //GLuint texture;
+    //glGenTextures(1, &texture);
+    //glBindTexture(GL_TEXTURE_2D, texture);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, temp_width, temp_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // clean up
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-    free(image_data);
     free(row_pointers);
     fclose(fp);
-    return texture;
+
+	// fill size
+	size.x = temp_width;
+	size.y = temp_height;
+
+	return (BYTE*)image_data;
 }
