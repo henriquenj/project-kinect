@@ -226,7 +226,7 @@ BYTE* LoadPng(const char * file_name,glm::uvec2 &size,bool &hasAlpha)
 	return (BYTE*)image_data;
 }
 
-bool SavePng(const char *savefile, BYTE* data_in, int w, int h, bool hasAlpha)
+bool SavePng(const char *savefile, BYTE* data_in, int w, int h)
 {
     unsigned char *data = (unsigned char *)data_in;
     int p = 0;
@@ -234,27 +234,16 @@ bool SavePng(const char *savefile, BYTE* data_in, int w, int h, bool hasAlpha)
 
 	int width, height;
 	int x,y;
-	png_byte color_type;
+	png_byte color_type = 6;
 	png_byte bit_depth;
 	png_structp png_ptr;
 	png_infop info_ptr;
 	png_bytep *row_pointers;
-	int BPP;
+	int BPP = 4;
 
     width = w;
     height = h;
     bit_depth = 8;
-
-	if (hasAlpha)
-	{
-		color_type = 6;
-		BPP = 4;
-	}
-	else
-	{
-		color_type = 2;
-		BPP = 3;
-	}
 
     // create file 
     fp = fopen(savefile, "wb");
