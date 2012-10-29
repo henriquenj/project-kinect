@@ -48,7 +48,7 @@ BYTE* LoadPng(const char * file_name, glm::uvec2 &size,bool &hasAlpha);
 // courtesy from this website http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures#A_simple_libpng_example
 
 /*Save a png file given a buffer*/
-bool SavePng(const char *savefile, BYTE* data_in, int w, int h,bool hasAlpha);
+bool SavePng(const char *savefile, BYTE* data_in, int w, int h);
 // courtesy from this user http://stackoverflow.com/questions/12061331/libpng-writing-a-png-fails-stops-at-header-write-error
 
 /*Swap values between two channels*/

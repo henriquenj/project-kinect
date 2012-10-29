@@ -71,7 +71,7 @@ void Menu(int option)
 			//invert image
 			colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 			// dump color buffer to a PNG file
-			SavePng(savefile,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor(),true);
+			SavePng(savefile,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 			delete colorbuffer;
 			delete depthbuffer;
 		}
