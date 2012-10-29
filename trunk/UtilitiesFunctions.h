@@ -43,9 +43,17 @@ const char * ShowFileDialog(/* Optional */void * window, int type, const char * 
 
 
 
-/* Load a png file given a file name, return buffer and fills the size vector. WARNING: you must delete this memory */
-BYTE* LoadPng(const char * file_name, glm::uvec2 &size);
+/* Load a png file given a file name, return buffer and fills the size vector and the hasAlpha bool. WARNING: you must delete this memory */
+BYTE* LoadPng(const char * file_name, glm::uvec2 &size,bool &hasAlpha);
 // courtesy from this website http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures#A_simple_libpng_example
 
+/*Save a png file given a buffer*/
+bool SavePng(const char *savefile, BYTE* data_in, int w, int h,bool hasAlpha);
+// courtesy from this user http://stackoverflow.com/questions/12061331/libpng-writing-a-png-fails-stops-at-header-write-error
+
+/*Swap values between two channels*/
+void BGRAtoRGBA(BYTE *buffer,int x, int y);
+
+BYTE* InvertLines(BYTE *buffer,int width, int height);
 
 #endif // __UTILITIES_FUNCIONS_HEADER__

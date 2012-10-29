@@ -12,8 +12,6 @@
 
 KinectSensor* kinect = NULL;
 ModelBuilder* model = NULL;
-BYTE* image = NULL;
-glm::uvec2 size;
 
 void RenderCallback()
 {
@@ -28,12 +26,11 @@ void RenderCallback()
 	glRasterPos2i(0,WINDOWHEIGHT-1);
 
 	// draw on screen buffer from kinect sensor
-	//glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
+	glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 
 
-	//glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_BYTE,kinect->GetDepthBufferToRender());
-	glDrawPixels(size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,image);
-	
+	glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_BYTE,kinect->GetDepthBufferToRender());
+
 	glutSwapBuffers();
 }
 
@@ -63,14 +60,21 @@ void Menu(int option)
 {
 	if (option == 0)
 	{
-		// call generate points to build a model
-		model->GeneratePoints();
-		// ask to the user to point a file 
-		std::string s_filename;
-		const char * filename = ShowFileDialog(0,DialogSave,"OBJ Files (*.obj)","*.obj");
-		if (filename != NULL) {s_filename = filename;}
-		// write on a file
-		model->WriteModelOnFile(s_filename);
+		// save png file
+		const char * savefile = ShowFileDialog(0,DialogSave,"PNG Files (*.png)","*.png");
+		if (savefile != NULL)
+		{
+			BYTE* colorbuffer = kinect->GetColorBuffer();
+			int* depthbuffer = kinect->GetDepthBuffer();
+			// swap channel
+			BGRAtoRGBA(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+			//invert image
+			colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+			// dump color buffer to a PNG file
+			SavePng(savefile,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor(),true);
+			delete colorbuffer;
+			delete depthbuffer;
+		}
 	}
 }
 void InitApp()
@@ -81,20 +85,12 @@ void InitApp()
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
 
-	//kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
-	//model = new ModelBuilder(kinect);
-
-	const char * filename = ShowFileDialog(0,DialogOpen,"PNG Files (*.png)","*.png");
-	if (filename == NULL){exit(0);}
-	else
-	{
-		//load png file
-		image = LoadPng(filename,size);
-	}
+	kinect = new KinectSensor(RESOLUTION_1280X1024,RESOLUTION_640X480);
+	model = new ModelBuilder(kinect);
 
 	// menus
 	int menu = glutCreateMenu(Menu);
-	glutAddMenuEntry("Generate Model",0);
+	glutAddMenuEntry("Capture Buffers",0);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
