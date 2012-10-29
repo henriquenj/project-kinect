@@ -84,7 +84,7 @@ const char * ShowFileDialog(void * window, int type, const char * filterDesc, co
 }
 
 
-BYTE* LoadPng(const char * file_name,glm::uvec2 &size)
+BYTE* LoadPng(const char * file_name,glm::uvec2 &size,bool &hasAlpha)
 {
 	png_byte header[8];
 
@@ -158,6 +158,10 @@ BYTE* LoadPng(const char * file_name,glm::uvec2 &size)
     png_get_IHDR(png_ptr, info_ptr, &temp_width, &temp_height, &bit_depth, &color_type,
         NULL, NULL, NULL);
 
+	if (color_type == 6)
+	{hasAlpha = true;}
+	else {hasAlpha = false;}
+
     int width = temp_width;
     int height = temp_height;
 
@@ -220,4 +224,147 @@ BYTE* LoadPng(const char * file_name,glm::uvec2 &size)
 	size.y = temp_height;
 
 	return (BYTE*)image_data;
+}
+
+bool SavePng(const char *savefile, BYTE* data_in, int w, int h, bool hasAlpha)
+{
+    unsigned char *data = (unsigned char *)data_in;
+    int p = 0;
+    FILE *fp;
+
+	int width, height;
+	int x,y;
+	png_byte color_type;
+	png_byte bit_depth;
+	png_structp png_ptr;
+	png_infop info_ptr;
+	png_bytep *row_pointers;
+	int BPP;
+
+    width = w;
+    height = h;
+    bit_depth = 8;
+
+	if (hasAlpha)
+	{
+		color_type = 6;
+		BPP = 4;
+	}
+	else
+	{
+		color_type = 2;
+		BPP = 3;
+	}
+
+    // create file 
+    fp = fopen(savefile, "wb");
+    if(!fp) 
+	{
+		MessageBoxA(0,"[write_png_file] File %s could not be opened for writing.","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+
+    // initialize stuff 
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if(!png_ptr) 
+	{
+		MessageBoxA(0,"[write_png_file] png_create_write_struct failed","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if(!info_ptr) 
+	{
+		MessageBoxA(0,"[write_png_file] png_create_info_struct failed","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+    if(setjmp(png_jmpbuf(png_ptr))) 
+	{
+		MessageBoxA(0,"[write_png_file] Error during init_io","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+
+    png_init_io(png_ptr, fp);
+    // write header 
+    if(setjmp(png_jmpbuf(png_ptr)))
+	{
+		MessageBoxA(0,"[write_png_file] Error during writing header","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+
+    png_set_IHDR(
+        png_ptr, info_ptr, width, height,
+        bit_depth, color_type, PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE
+    );
+
+    png_write_info(png_ptr, info_ptr);
+
+    row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+    for(y = 0; y < height; y++){
+        row_pointers[y] = (png_byte*)malloc(width*BPP);//png_get_rowbytes(png_ptr,info_ptr));
+        for(x = 0; x < width; x++){
+            row_pointers[y][x*BPP+0] = data[p++];
+            row_pointers[y][x*BPP+1] = data[p++];
+            row_pointers[y][x*BPP+2] = data[p++];
+			row_pointers[y][x*BPP+3] = 255; p++;
+        }
+    }
+    // write bytes 
+    if(setjmp(png_jmpbuf(png_ptr))) 
+	{
+		MessageBoxA(0,"[write_png_file] Error during writing bytes","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+
+    png_write_image(png_ptr, row_pointers);
+
+    // end write 
+    if(setjmp(png_jmpbuf(png_ptr))) 
+	{
+		MessageBoxA(0,"[write_png_file] Error during end of write","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return false;
+	}
+
+    png_write_end(png_ptr, NULL);
+
+    // cleanup heap allocation 
+    for(y = 0; y < height; y++){
+        free(row_pointers[y]);
+    }
+    free(row_pointers);
+
+    fclose(fp);
+
+    return true;
+}
+
+
+void BGRAtoRGBA(BYTE *buffer, int x, int y)
+{
+	//BYTE r,g,b;
+	BYTE temp;
+	int size = x * y * 4;
+	for (int j = 0; j < size; j+=4)
+	{
+		// swap values
+		temp = buffer[j];
+		buffer[j] = buffer[j+2];
+		buffer[j+2] = temp;
+	}
+}
+
+BYTE* InvertLines(BYTE *buffer,int width, int height)
+{
+	int bpc = 4;
+	int lineSize = width * bpc;
+	BYTE* newBuffer = (BYTE*)malloc(sizeof(BYTE) * width * height * bpc);
+	// swap lines only
+	for (int p = 0, u = height-1; p < height-1; p++, u--)
+	{
+		memcpy(&(newBuffer[u * width * bpc]),&(buffer[p * width * bpc]),lineSize);
+	}
+
+	delete buffer;
+	return newBuffer;
 }
