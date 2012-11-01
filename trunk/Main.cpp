@@ -13,6 +13,12 @@
 KinectSensor* kinect = NULL;
 ModelBuilder* model = NULL;
 
+// loaded frames
+glm::uvec2 sizeColor; // color buffer size
+glm::uvec2 sizeDepth; // depth buffer size
+BYTE* colorBuffer = NULL;
+BYTE* depthBufferToRender = NULL;
+
 void RenderCallback()
 {
 	Sleep(5);
@@ -21,15 +27,27 @@ void RenderCallback()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-
+	
 	// define position
 	glRasterPos2i(0,WINDOWHEIGHT-1);
 
-	// draw on screen buffer from kinect sensor
-	glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
+	if (kinect->GetReady())
+	{
+		// draw on screen buffer from kinect sensor
+		glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 
 
-	glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_BYTE,kinect->GetDepthBufferToRender());
+		glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_UNSIGNED_BYTE,kinect->GetDepthBufferToRender());
+	}
+
+	if (colorBuffer != NULL)
+	{
+		glDrawPixels(sizeColor.x,sizeColor.y,GL_RGBA,GL_UNSIGNED_BYTE,colorBuffer);
+	}
+	if (depthBufferToRender != NULL)
+	{
+		glDrawPixels(sizeDepth.x,sizeDepth.y,GL_LUMINANCE,GL_UNSIGNED_BYTE,depthBufferToRender);
+	}
 
 	glutSwapBuffers();
 }
@@ -58,22 +76,60 @@ void KeyboardCallback(unsigned char key, int x, int y)
 
 void Menu(int option)
 {
+	const char * filepath;
 	if (option == 0)
 	{
-		// save png file
-		const char * savefile = ShowFileDialog(0,DialogSave,"PNG Files (*.png)","*.png");
-		if (savefile != NULL)
+		if(kinect->GetReady())
 		{
+			//first get the buffers
 			BYTE* colorbuffer = kinect->GetColorBuffer();
 			int* depthbuffer = kinect->GetDepthBuffer();
-			// swap channel
-			BGRAtoRGBA(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
-			//invert image
-			colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
-			// dump color buffer to a PNG file
-			SavePng(savefile,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+
+			filepath = ShowFileDialog(0,DialogSave,"PNG Files (*.png)","*.png");
+			if (filepath != NULL)
+			{
+				// swap channel
+				BGRAtoRGBA(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+				//invert image
+				colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+				// dump color buffer to a PNG file
+				SavePng(filepath,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+			}
+			filepath = ShowFileDialog(0,DialogSave,"Any file","*.*");
+			if (filepath != NULL)
+			{
+				// dump depth buffer to a file
+				DumpDepthBuffer(depthbuffer,kinect->GetWidthDepth(),kinect->GetHeightDepth(),filepath);
+			}
 			delete colorbuffer;
 			delete depthbuffer;
+		}
+		else
+		{
+			MessageBoxA(0,"Your kinect isn't ready for retrieve frames.", "Error", (MB_OK | MB_ICONEXCLAMATION));
+		}
+	}
+	else if (option == 1)
+	{
+		// load depth buffer file
+		filepath = ShowFileDialog(0,DialogOpen,"Any file","*.*");
+		if (filepath != NULL)
+		{
+			int* rawDepthBuffer = ReadDepthBuffer(sizeDepth,filepath);
+			// convert to render
+			depthBufferToRender = new BYTE[sizeDepth.x * sizeDepth.y];
+			for (int i = 0; i < sizeDepth.x * sizeDepth.y; i++)
+			{
+				BYTE l = 255 - (BYTE)(256*rawDepthBuffer[i]/0x0fff);
+				depthBufferToRender[i] = l / 2;
+			}
+			delete rawDepthBuffer;
+		}
+		filepath = ShowFileDialog(0,DialogOpen,"PNG Files","*.png");
+		if (filepath != NULL)
+		{
+			bool hasAlpha;
+			colorBuffer = LoadPng(filepath,sizeColor,hasAlpha);
 		}
 	}
 }
@@ -85,12 +141,13 @@ void InitApp()
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
 
-	kinect = new KinectSensor(RESOLUTION_1280X1024,RESOLUTION_640X480);
+	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
 	model = new ModelBuilder(kinect);
 
 	// menus
 	int menu = glutCreateMenu(Menu);
 	glutAddMenuEntry("Capture Buffers",0);
+	glutAddMenuEntry("Load Buffers From File",1);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 

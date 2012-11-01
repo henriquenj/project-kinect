@@ -357,3 +357,54 @@ BYTE* InvertLines(BYTE *buffer,int width, int height)
 	delete buffer;
 	return newBuffer;
 }
+
+
+void DumpDepthBuffer(int *buffer, int width, int height, const char* filename)
+{
+	// put the depth buffer on a txt file
+	std::ofstream file;
+	file.open(filename);
+
+	if(!file.is_open())
+	{
+		MessageBoxA(0,"Detph buffer file could not be opened","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return;
+	}
+	//save image resolution
+	file.write((char*)&width,sizeof(int));
+	file.write((char*)&height,sizeof(int));
+
+	file.write((char*)buffer,width * height * sizeof(int));
+
+	file.close();
+}
+
+int* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
+{
+	// opem file
+	std::fstream file;
+	file.open(filename);
+
+	if (!file.is_open())
+	{
+		MessageBoxA(0,"Detph buffer file could not be opened","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return NULL;
+	}
+
+	int width, height;
+	// first 8 byte is the image resolution
+	file.read((char*)&width,sizeof(int));
+	file.read((char*)&height,sizeof(int));
+	// fill size
+	size.x = width;
+	size.y = height;
+
+	// alloc vector
+	int* buffer = (int*)malloc(width * height * sizeof(int));
+	file.read((char*)buffer,width * height * sizeof(int));
+
+	file.close();
+
+	// return buffer
+	return buffer;
+}
