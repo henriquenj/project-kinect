@@ -3,17 +3,16 @@
 KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 {
 	// executes setup with the NUI api
+	colorVideoStreamHandle = depthStremHandle = kinectThreadSignalStop = kinectThread = nextVideoFrameEvent = nextDepthFrameEvent = NULL;
 	
-	// create events
-	nextVideoFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
-	nextDepthFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 	// init NUI library
 	HRESULT hr = NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH | NUI_INITIALIZE_FLAG_USES_COLOR);
 
 	if (FAILED(hr))
 	{
 		MessageBoxA(0,"Failed to init NUI library, check if the Kinect device is connected","Error",(MB_OK | MB_ICONEXCLAMATION));
-		exit(0);
+		isReady = false;
+		return;
 	}
 
 	// check for programmer error in the setup
@@ -22,6 +21,9 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	assert((depthBufferResolution == RESOLUTION_320X240) || (depthBufferResolution == RESOLUTION_640X480)
 			&& "Wrong resolution set up for the depth buffer!");
 
+	// create events
+	nextVideoFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+	nextDepthFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 	// open streams
 	if (colorBufferResolution == RESOLUTION_640X480)
 	{
@@ -40,7 +42,8 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	if (FAILED(hr))
 	{
 		MessageBoxA(0,"Failed to load Kinect color streams, check if your Kinect ir working properly", "Error", (MB_OK | MB_ICONEXCLAMATION));
-		exit(0);
+		isReady = false;
+		return;
 	}
 
 	// open depth buffer
@@ -60,7 +63,8 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	if (FAILED(hr))
 	{
 		MessageBoxA(0,"Failed to load Kinect depth stream, check if your Kinect ir working properly","Error",(MB_OK | MB_ICONEXCLAMATION));
-		exit(0);
+		isReady = false;
+		return;
 	}
 
 	// init color buffer with black screen
@@ -81,14 +85,15 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	kinectThreadSignalStop=CreateEvent(NULL,FALSE,FALSE,NULL);
 	kinectThread=CreateThread(NULL,0,KinectThread,this,0,NULL);
 
+	// all fine
+	isReady = true;
+
 }
 
 
 KinectSensor::~KinectSensor(void)
 {
 	// dealloc everything related with the kinect device
-
-	DeleteCriticalSection(&criticalSection);
 
 	// stop the kinect thread
 	if (kinectThreadSignalStop != NULL)
@@ -97,10 +102,10 @@ KinectSensor::~KinectSensor(void)
 
 		// Wait for thread to stop
 		if(kinectThread!=NULL)
-        {
+		{
 			WaitForSingleObject(kinectThread,INFINITE);
-            CloseHandle(kinectThread);
-        }
+			CloseHandle(kinectThread);
+		}
 
 		CloseHandle(kinectThreadSignalStop);
 	}
@@ -109,21 +114,25 @@ KinectSensor::~KinectSensor(void)
 
 	// "close" events
 	if( nextDepthFrameEvent && ( nextDepthFrameEvent != INVALID_HANDLE_VALUE ) )
-    {
-        CloseHandle( nextDepthFrameEvent );
-        nextDepthFrameEvent = NULL;
-    }
+	{
+		CloseHandle( nextDepthFrameEvent );
+		nextDepthFrameEvent = NULL;
+	}
 	if( nextVideoFrameEvent && ( nextVideoFrameEvent != INVALID_HANDLE_VALUE ) )
-    {
-        CloseHandle( nextVideoFrameEvent );
-        nextVideoFrameEvent = NULL;
-    }
+	{
+		CloseHandle( nextVideoFrameEvent );
+		nextVideoFrameEvent = NULL;
+	}
 
-	// delete memory 
-	delete colorBuffer;
-	delete depthBuffer;
-	delete processedBuffer;
-	delete depthBufferToRender;
+	if (isReady)
+	{
+		// delete memory 
+		delete colorBuffer;
+		delete depthBuffer;
+		delete processedBuffer;
+		delete depthBufferToRender;
+		DeleteCriticalSection(&criticalSection);
+	}
 }
 
 void KinectSensor::NewVideoFrame()

@@ -59,6 +59,11 @@ public:
 	{
 		return depthBufferHeight;
 	}
+	// Return true if the Kinect is ready to retrieve frames, if the kinect is disconnected, this will return false.
+	inline const bool GetReady()const
+	{
+		return isReady;
+	}
 
 private:
 	// handle to control kinect's buffers
@@ -84,6 +89,8 @@ private:
 	BYTE* depthBufferToRender; // the depth buffer ready to drawning on the screen
 	int* processedBuffer; // buffer that hold the information about each pixel distance to the kinect device
 	int colorBufferWidth, colorBufferHeight, depthBufferWidth, depthBufferHeight;
+	// bool that controls if the kinect device is ready to render frames
+	bool isReady;
 
 	// critical section
 	CRITICAL_SECTION criticalSection;
