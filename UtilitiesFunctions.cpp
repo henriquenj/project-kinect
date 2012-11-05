@@ -370,6 +370,9 @@ void DumpDepthBuffer(int *buffer, int width, int height, const char* filename)
 		MessageBoxA(0,"Detph buffer file could not be opened","Error",(MB_OK | MB_ICONEXCLAMATION));
 		return;
 	}
+
+	// first three bytes are the file identification
+	file.write("dep",3);
 	//save image resolution
 	file.write((char*)&width,sizeof(int));
 	file.write((char*)&height,sizeof(int));
@@ -391,8 +394,16 @@ int* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
 		return NULL;
 	}
 
+	// first three byte is the file identication
+	char id[3];
+	file.read(id,3);
+	if (id[0] != 'd' || id[1] != 'e' || id[2] != 'p')
+	{
+		MessageBoxA(0,"File is not a depth buffer file.","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return NULL;
+	}
 	int width, height;
-	// first 8 byte is the image resolution
+	// next 8 byte is the image resolution
 	file.read((char*)&width,sizeof(int));
 	file.read((char*)&height,sizeof(int));
 	// fill size

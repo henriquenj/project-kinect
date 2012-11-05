@@ -35,8 +35,6 @@ void RenderCallback()
 	{
 		// draw on screen buffer from kinect sensor
 		glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
-
-
 		glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_UNSIGNED_BYTE,kinect->GetDepthBufferToRender());
 	}
 
@@ -95,7 +93,7 @@ void Menu(int option)
 				// dump color buffer to a PNG file
 				SavePng(filepath,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 			}
-			filepath = ShowFileDialog(0,DialogSave,"Any file","*.*");
+			filepath = ShowFileDialog(0,DialogSave,".dep files","*.dep*");
 			if (filepath != NULL)
 			{
 				// dump depth buffer to a file
@@ -112,19 +110,23 @@ void Menu(int option)
 	else if (option == 1)
 	{
 		// load depth buffer file
-		filepath = ShowFileDialog(0,DialogOpen,"Any file","*.*");
+		filepath = ShowFileDialog(0,DialogOpen,".dep files","*.dep*");
 		if (filepath != NULL)
 		{
 			int* rawDepthBuffer = ReadDepthBuffer(sizeDepth,filepath);
-			// convert to render
-			depthBufferToRender = new BYTE[sizeDepth.x * sizeDepth.y];
-			for (int i = 0; i < sizeDepth.x * sizeDepth.y; i++)
+			if(rawDepthBuffer)
 			{
-				BYTE l = 255 - (BYTE)(256*rawDepthBuffer[i]/0x0fff);
-				depthBufferToRender[i] = l / 2;
+				// convert to render
+				depthBufferToRender = new BYTE[sizeDepth.x * sizeDepth.y];
+				for (int i = 0; i < sizeDepth.x * sizeDepth.y; i++)
+				{
+					BYTE l = 255 - (BYTE)(256*rawDepthBuffer[i]/0x0fff);
+					depthBufferToRender[i] = l / 2;
+				}
+				delete rawDepthBuffer;
 			}
-			delete rawDepthBuffer;
 		}
+		// load color buffer
 		filepath = ShowFileDialog(0,DialogOpen,"PNG Files","*.png");
 		if (filepath != NULL)
 		{
@@ -141,7 +143,7 @@ void InitApp()
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
 
-	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_640X480);
+	kinect = new KinectSensor(RESOLUTION_1280X1024,RESOLUTION_640X480);
 	model = new ModelBuilder(kinect);
 
 	// menus
