@@ -13,16 +13,15 @@
 class ModelBuilder
 {
 public:
-	ModelBuilder(KinectSensor* sensor);
+	ModelBuilder();
 	~ModelBuilder(void);
 
 	// Generate points using the last depth buffer avaiable. WARNING: this will ERASE the previously created model 
-	void GeneratePoints();
+	void GeneratePoints(int *depthBuffer, glm::uvec2 size);
 	// Write model on a .obj file using last model builded by GeneratePoints.
 	void WriteModelOnFile(std::string &filename);
 
 private:
-	KinectSensor* sensor; // local reference
 	// vector of points
 	std::vector<glm::vec3> points;
 };

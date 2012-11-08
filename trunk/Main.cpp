@@ -5,19 +5,25 @@
 
 #include "KinectSensor.h"
 #include "ModelBuilder.h"
+#include "BufferProcess.h"
 #include "UtilitiesFunctions.h"
 
 #define WINDOWWIDTH 640
 #define WINDOWHEIGHT 480
 
 KinectSensor* kinect = NULL;
-ModelBuilder* model = NULL;
+BufferProcess* bProcess = NULL;
+ModelBuilder* builder = NULL;
 
 // loaded frames
 glm::uvec2 sizeColor; // color buffer size
 glm::uvec2 sizeDepth; // depth buffer size
 BYTE* colorBuffer = NULL;
 BYTE* depthBufferToRender = NULL;
+int* depthBuffer = NULL;
+
+// markers
+std::vector<glm::uvec2> markers;
 
 void RenderCallback()
 {
@@ -38,14 +44,23 @@ void RenderCallback()
 		glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_UNSIGNED_BYTE,kinect->GetDepthBufferToRender());
 	}
 
-	if (colorBuffer != NULL)
-	{
-		glDrawPixels(sizeColor.x,sizeColor.y,GL_RGBA,GL_UNSIGNED_BYTE,colorBuffer);
-	}
 	if (depthBufferToRender != NULL)
 	{
 		glDrawPixels(sizeDepth.x,sizeDepth.y,GL_LUMINANCE,GL_UNSIGNED_BYTE,depthBufferToRender);
 	}
+	if (colorBuffer != NULL)
+	{
+		glDrawPixels(sizeColor.x,sizeColor.y,GL_RGBA,GL_UNSIGNED_BYTE,colorBuffer);
+	}
+
+	// draw markers
+	glBegin(GL_POINTS);
+	for (int p = 0; p < markers.size(); p++)
+	{
+		glVertex2i(markers[p].x,markers[p].y);
+	}
+	glEnd();
+
 
 	glutSwapBuffers();
 }
@@ -113,17 +128,16 @@ void Menu(int option)
 		filepath = ShowFileDialog(0,DialogOpen,".dep files","*.dep*");
 		if (filepath != NULL)
 		{
-			int* rawDepthBuffer = ReadDepthBuffer(sizeDepth,filepath);
-			if(rawDepthBuffer)
+			depthBuffer = ReadDepthBuffer(sizeDepth,filepath);
+			if(depthBuffer)
 			{
 				// convert to render
 				depthBufferToRender = new BYTE[sizeDepth.x * sizeDepth.y];
 				for (int i = 0; i < sizeDepth.x * sizeDepth.y; i++)
 				{
-					BYTE l = 255 - (BYTE)(256*rawDepthBuffer[i]/0x0fff);
+					BYTE l = 255 - (BYTE)(256*depthBuffer[i]/0x0fff);
 					depthBufferToRender[i] = l / 2;
 				}
-				delete rawDepthBuffer;
 			}
 		}
 		// load color buffer
@@ -134,6 +148,41 @@ void Menu(int option)
 			colorBuffer = LoadPng(filepath,sizeColor,hasAlpha);
 		}
 	}
+	else if (option == 2)
+	{
+		if (colorBuffer == NULL || depthBufferToRender == NULL)
+		{
+			// error! one or two buffers aren't loaded!
+			MessageBoxA(0,"Cannot process buffers. There is no loaded buffer!","Error",(MB_OK | MB_ICONEXCLAMATION));
+		}
+		else
+		{
+			// check if there are enough markers
+			if (markers.size() < 2)
+			{
+				MessageBoxA(0,"You must mark at least two markers","Error",(MB_OK | MB_ICONEXCLAMATION));
+			}
+			else
+			{
+				// now execute the actual processing
+				bProcess->CategorizeObjects(colorBuffer,sizeColor.x * sizeColor.y * 4,markers.size());
+			}
+		}
+	}
+	else if (option == 3)
+	{
+		if (depthBuffer)
+		{
+			builder->GeneratePoints(depthBuffer,sizeDepth);
+			const char * filepath = ShowFileDialog(0,DialogSave,"OBJ Files","*.obj");
+			std::string path(filepath);
+			builder->WriteModelOnFile(path);
+		}
+		else
+		{
+			MessageBoxA(0,"Cannot process buffers. There is no loaded buffer!","Error",(MB_OK | MB_ICONEXCLAMATION));
+		}
+	}
 }
 void InitApp()
 {
@@ -142,15 +191,41 @@ void InitApp()
     glLoadIdentity();
 	glOrtho(0.0, WINDOWWIDTH, WINDOWHEIGHT,0,0,1);
 	glMatrixMode(GL_MODELVIEW);
+	glPointSize(5);
 
 	kinect = new KinectSensor(RESOLUTION_1280X1024,RESOLUTION_640X480);
-	model = new ModelBuilder(kinect);
+	bProcess = new BufferProcess();
+	builder = new ModelBuilder();
 
 	// menus
 	int menu = glutCreateMenu(Menu);
 	glutAddMenuEntry("Capture Buffers",0);
 	glutAddMenuEntry("Load Buffers From File",1);
+	glutAddMenuEntry("Process buffers",2);
+	glutAddMenuEntry("Generate model",3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+void MouseCallback(int button, int state, int x, int y)
+{
+	// process click events
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	{
+		if (colorBuffer == NULL || depthBufferToRender == NULL)
+		{
+			// error!
+			MessageBoxA(0,"Cannot add marker. There is no loaded buffer!","Error",(MB_OK | MB_ICONEXCLAMATION));
+		}
+		else
+		{
+			glm::uvec2 tMarker(x,y);
+			// upon click, create a marker
+			markers.push_back(tMarker);
+			// add in the process buffer
+			bProcess->AddMarker(tMarker);
+		}
+	}
+	
 }
 
 void IdleCallback()
@@ -159,6 +234,10 @@ void IdleCallback()
 }
 int main()
 {
+
+	// setup this for pseudo-random number generatiom
+	srand(time(NULL));
+
 	// setup Glut and OpenGL
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -173,6 +252,7 @@ int main()
 	glutReshapeFunc(ReshapeCallback);
 	glutDisplayFunc(RenderCallback);
 	glutKeyboardFunc(KeyboardCallback);
+	glutMouseFunc(MouseCallback);
 	glutIdleFunc(IdleCallback);
 	
 	
