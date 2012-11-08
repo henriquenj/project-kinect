@@ -1,12 +1,8 @@
 #include "ModelBuilder.h"
 
 
-ModelBuilder::ModelBuilder(KinectSensor* sensor)
+ModelBuilder::ModelBuilder()
 {
-	// to prevent silly errors
-	assert (sensor != NULL && "You must init the sensor!");
-
-	this->sensor = sensor;
 }
 
 
@@ -15,16 +11,13 @@ ModelBuilder::~ModelBuilder(void)
 }
 
 
-void ModelBuilder::GeneratePoints()
+void ModelBuilder::GeneratePoints(int *depthBuffer,glm::uvec2 size)
 {
 	// erase previously
 	points.clear();
 
-	// retrieve depth buffer from kinect device
-	int *depthBuffer = sensor->GetDepthBuffer();
-
 	int max = 0,min = 0,bufferSize;
-	bufferSize = sensor->GetHeightDepth() * sensor->GetWidthDepth();
+	bufferSize = size.x * size.y;
 
 	// find max distance and min distance
 	for (int p = 0; p < bufferSize; p++)
@@ -50,10 +43,10 @@ void ModelBuilder::GeneratePoints()
 	{
 		// put points in vector
 		glm::vec3 tVertex;
-		tVertex.x = b % sensor->GetWidthDepth();
-		tVertex.y = b / sensor->GetWidthDepth();
+		tVertex.x = b % size.x;
+		tVertex.y = b / size.y;
 		// make the max value being the X size of the buffer
-		tVertex.z = (sensor->GetWidthDepth() * depthBuffer[b]) / max;
+		tVertex.z = (size.x * depthBuffer[b]) / max;
 		// put on vector
 		points[b] = tVertex;
 	}
