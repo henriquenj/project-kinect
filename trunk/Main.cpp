@@ -119,7 +119,7 @@ void Menu(int option)
 		}
 		else
 		{
-			MessageBoxA(0,"Your kinect isn't ready for retrieve frames.", "Error", (MB_OK | MB_ICONEXCLAMATION));
+			MessageBoxA(0,"Your kinect isn't ready to retrieve frames.", "Error", (MB_OK | MB_ICONEXCLAMATION));
 		}
 	}
 	else if (option == 1)
@@ -165,7 +165,10 @@ void Menu(int option)
 			else
 			{
 				// now execute the actual processing
-				bProcess->CategorizeObjects(colorBuffer,sizeColor.x * sizeColor.y * 4,markers.size());
+				BYTE* tempColor;
+				tempColor = bProcess->CategorizeObjects(colorBuffer,sizeColor.x * sizeColor.y * 4,markers.size());
+				delete colorBuffer;
+				colorBuffer = tempColor;
 			}
 		}
 	}
