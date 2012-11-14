@@ -59,7 +59,7 @@ public:
 	{
 		return depthBufferHeight;
 	}
-	// Return true if the Kinect is ready to retrieve frames, if the kinect is disconnected, this will return false.
+	// Return true if the Kinect is ready to retrieve frames. If the it is disconnected, this will return false.
 	inline const bool GetReady()const
 	{
 		return isReady;

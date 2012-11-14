@@ -32,7 +32,6 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 		markerColors[p].r = buffer[markers[p].x * markers[p].y * 4];
 		markerColors[p].g = buffer[markers[p].x * markers[p].y * 4 + 1];
 		markerColors[p].b = buffer[markers[p].x * markers[p].y * 4 + 2];
-		markerColors[p].b = buffer[markers[p].x * markers[p].y * 4 + 3];
 	}
 	
 
@@ -52,9 +51,32 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 	// the max distance between a given marker and a given pixel to be considered part of that area is defined by MAXDISTANCE
 	
 	// process all pixels
-	for(int i = 0; i < size; i++)
+	for(int i = 0; i < size; i+=4)
 	{
-
+		//int smallerDistance = 99999;
+		// current pixel
+		glm::vec3 color;
+		color.r = buffer[i];
+		color.g = buffer[i+1];
+		color.b = buffer[i+2];
+		// for each pixel, check which of the marks are closest
+		for (int p = 0; p < markersSize; p++)
+		{
+			// must convert this to float, I must figure out a better approach
+			glm::vec3 marker;
+			marker.r = markerColors[p].r;
+			marker.g = markerColors[p].g;
+			marker.b = markerColors[p].b;
+			// test all markers
+			float distance = glm::distance(color,marker);
+			if (distance < MAXDISTANCE)
+			{
+				// put color zone on that pixel
+				processedBuffer[i] = zoneColors[p].r;
+				processedBuffer[i+1] = zoneColors[p].g;
+				processedBuffer[i+2] = zoneColors[p].b;
+			}
+		}
 	}
 
 	return processedBuffer;
