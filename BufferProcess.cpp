@@ -16,11 +16,12 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 	assert(buffer != NULL);
 	// must have at least amountMarkers markers
 	assert(markers.size() == amountMarkers);
-	// at least two markers
-	assert(markers.size() > 1);
+	// at least one marker
+	assert(markers.size() > 0);
 
 	// alloc memory
 	BYTE* processedBuffer = new BYTE[size];
+	memset(processedBuffer,0,size);
 
 	int markersSize = markers.size();
 	// must have a local reference containing the color of each pixel that point to a marker
@@ -43,9 +44,9 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 	zoneColors.resize(markersSize);
 	for (int j = 0; j < markersSize; j++)
 	{
-		zoneColors[j].r = rand() % 256;
-		zoneColors[j].g = rand() % 256;
-		zoneColors[j].b = rand() % 256;
+		zoneColors[j].r = (rand() % 100) + 155;
+		zoneColors[j].g = (rand() % 100) + 155;
+		zoneColors[j].b = (rand() % 100) + 155;
 	}
 
 	// the max distance between a given marker and a given pixel to be considered part of that area is defined by MAXDISTANCE
@@ -53,7 +54,8 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 	// process all pixels
 	for(int i = 0; i < size; i+=4)
 	{
-		//int smallerDistance = 99999;
+		int smallerDistance = MAXDISTANCE;
+		int markerNumber = 99999; // store the index of the marker
 		// current pixel
 		glm::vec3 color;
 		color.r = buffer[i];
@@ -69,13 +71,22 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 			marker.b = markerColors[p].b;
 			// test all markers
 			float distance = glm::distance(color,marker);
-			if (distance < MAXDISTANCE)
+			// check if it's the smaller distance so far
+			if (distance < smallerDistance)
 			{
-				// put color zone on that pixel
-				processedBuffer[i] = zoneColors[p].r;
-				processedBuffer[i+1] = zoneColors[p].g;
-				processedBuffer[i+2] = zoneColors[p].b;
+				// update number
+				distance = smallerDistance;
+				// update index
+				markerNumber = p;
 			}
+		}
+
+		if (markerNumber != 99999)
+		{
+			//at the end, put color zone on that pixel
+			processedBuffer[i] = zoneColors[markerNumber].r;
+			processedBuffer[i+1] = zoneColors[markerNumber].g;
+			processedBuffer[i+2] = zoneColors[markerNumber].b;
 		}
 	}
 
@@ -84,6 +95,12 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
 
 void BufferProcess::AddMarker(glm::uvec2 &marker)
 {
+	// put a limit of five markers
+	if (markers.size() == 5)
+	{
+		MessageBoxA(0,"Max of five markers.","Error",(MB_OK | MB_ICONEXCLAMATION));
+		return;
+	}
 	// just add
 	markers.push_back(marker);
 }

@@ -8,8 +8,8 @@
 #include "BufferProcess.h"
 #include "UtilitiesFunctions.h"
 
-#define WINDOWWIDTH 640
-#define WINDOWHEIGHT 480
+#define WINDOWWIDTH 1280
+#define WINDOWHEIGHT 1024
 
 KinectSensor* kinect = NULL;
 BufferProcess* bProcess = NULL;
@@ -158,9 +158,9 @@ void Menu(int option)
 		else
 		{
 			// check if there are enough markers
-			if (markers.size() < 2)
+			if (markers.size() == 0)
 			{
-				MessageBoxA(0,"You must mark at least two markers","Error",(MB_OK | MB_ICONEXCLAMATION));
+				MessageBoxA(0,"You must mark at least one marker","Error",(MB_OK | MB_ICONEXCLAMATION));
 			}
 			else
 			{
