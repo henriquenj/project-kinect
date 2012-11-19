@@ -8,7 +8,7 @@
 #include "glm\glm.hpp"
 #include "glm\ext.hpp"
 
-#define MAXDISTANCE 64 // max distance between a marker and a pixel to be considered part of that area
+#define MAXDISTANCE 100 // max distance between a marker and a pixel to be considered part of that area
 					   // subject to change
 
 
