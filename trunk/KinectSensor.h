@@ -5,12 +5,13 @@
 #include <Windows.h>
 #include <assert.h>
 
-#include "MSR_NuiApi.h"
+
+#include "NuiApi.h"
 
 //defines to configure kinect device
 #define RESOLUTION_320X240 NUI_IMAGE_RESOLUTION_320x240
 #define RESOLUTION_640X480 NUI_IMAGE_RESOLUTION_640x480
-#define RESOLUTION_1280X1024 NUI_IMAGE_RESOLUTION_1280x1024
+#define RESOLUTION_1280X960 NUI_IMAGE_RESOLUTION_1280x960
 
 // class that manages the kinect sensor
 // also take care of the kinect-thread
@@ -18,10 +19,10 @@ class KinectSensor
 {
 public:
 	/* Init the kinect device passing one of the two resolutions avaiable for each buffer
-		colorBufferResolution accepts RESOLUTION_640X480 and RESOLUTION_1280X1024
+		colorBufferResolution accepts RESOLUTION_640X480 and RESOLUTION_1280X960
 		depthBufferResolution accepts RESOLUTION_320X240 and RESOLUTION_640X480
 	*/
-	KinectSensor(int colorBufferResolution, int depthBufferResolution);
+	KinectSensor(_NUI_IMAGE_RESOLUTION colorBufferResolution, _NUI_IMAGE_RESOLUTION depthBufferResolution);
 	~KinectSensor(void);
 
 	
@@ -67,7 +68,7 @@ public:
 
 private:
 	// handle to control kinect's buffers
-	HANDLE colorVideoStreamHandle, depthStremHandle;
+	HANDLE colorVideoStreamHandle, depthStreamHandle;
 	// handles to control signals and the kinect-thread
 	HANDLE kinectThreadSignalStop, kinectThread;
 	// kinect related events
@@ -91,6 +92,9 @@ private:
 	int colorBufferWidth, colorBufferHeight, depthBufferWidth, depthBufferHeight;
 	// bool that controls if the kinect device is ready to render frames
 	bool isReady;
+
+	// the sensor
+	INuiSensor* sensor;
 
 	// critical section
 	CRITICAL_SECTION criticalSection;

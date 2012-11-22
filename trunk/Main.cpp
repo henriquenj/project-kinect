@@ -196,7 +196,7 @@ void InitApp()
 	glMatrixMode(GL_MODELVIEW);
 	glPointSize(5);
 
-	kinect = new KinectSensor(RESOLUTION_1280X1024,RESOLUTION_640X480);
+	kinect = new KinectSensor(RESOLUTION_1280X960,RESOLUTION_640X480);
 	bProcess = new BufferProcess();
 	builder = new ModelBuilder();
 

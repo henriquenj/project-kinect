@@ -1,22 +1,12 @@
 #include "KinectSensor.h"
 
-KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
+KinectSensor::KinectSensor(_NUI_IMAGE_RESOLUTION colorBufferResolution,_NUI_IMAGE_RESOLUTION depthBufferResolution)
 {
 	// executes setup with the NUI api
-	colorVideoStreamHandle = depthStremHandle = kinectThreadSignalStop = kinectThread = nextVideoFrameEvent = nextDepthFrameEvent = NULL;
-	
-	// init NUI library
-	HRESULT hr = NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH | NUI_INITIALIZE_FLAG_USES_COLOR);
-
-	if (FAILED(hr))
-	{
-		MessageBoxA(0,"Failed to init NUI library, check if the Kinect device is connected","Error",(MB_OK | MB_ICONEXCLAMATION));
-		isReady = false;
-		return;
-	}
+	colorVideoStreamHandle = depthStreamHandle = kinectThreadSignalStop = kinectThread = nextVideoFrameEvent = nextDepthFrameEvent = NULL;
 
 	// check for programmer error in the setup
-	assert((colorBufferResolution == RESOLUTION_1280X1024) || (colorBufferResolution == RESOLUTION_640X480) &&
+	assert((colorBufferResolution == RESOLUTION_1280X960) || (colorBufferResolution == RESOLUTION_640X480) &&
 			"Wrong resolution set up for the color buffer!");
 	assert((depthBufferResolution == RESOLUTION_320X240) || (depthBufferResolution == RESOLUTION_640X480)
 			&& "Wrong resolution set up for the depth buffer!");
@@ -24,48 +14,48 @@ KinectSensor::KinectSensor(int colorBufferResolution,int depthBufferResolution)
 	// create events
 	nextVideoFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 	nextDepthFrameEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
-	// open streams
-	if (colorBufferResolution == RESOLUTION_640X480)
+
+	//create kinect sensor
+	if(FAILED (NuiCreateSensorByIndex(0, &sensor)))
 	{
-		hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_COLOR,NUI_IMAGE_RESOLUTION_640x480,0,2,nextVideoFrameEvent,&colorVideoStreamHandle);
-		// update member variables
-		colorBufferWidth = 640;
-		colorBufferHeight = 480;
-	}
-	else 
-	{
-		hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_COLOR,NUI_IMAGE_RESOLUTION_1280x1024,0,2,nextVideoFrameEvent,&colorVideoStreamHandle);
-		colorBufferWidth = 1280;
-		colorBufferHeight = 1024;
+		MessageBoxA(0,"Failed to init NUI library, check if the Kinect device is connected","Error",(MB_OK | MB_ICONEXCLAMATION));
+		isReady = false;
 	}
 
-	if (FAILED(hr))
+	// init NUI
+	if(FAILED(sensor->NuiInitialize( NUI_INITIALIZE_FLAG_USES_DEPTH | NUI_INITIALIZE_FLAG_USES_COLOR )))
 	{
-		MessageBoxA(0,"Failed to load Kinect color streams, check if your Kinect ir working properly", "Error", (MB_OK | MB_ICONEXCLAMATION));
+		MessageBoxA(0,"Failed to init NUI library, check if the Kinect device is connected","Error",(MB_OK | MB_ICONEXCLAMATION));
 		isReady = false;
 		return;
 	}
 
-	// open depth buffer
-	if (depthBufferResolution == RESOLUTION_320X240)
+	// opem stream to color buffer
+	if(FAILED(sensor->NuiImageStreamOpen(NUI_IMAGE_TYPE_COLOR,colorBufferResolution,0,2,nextVideoFrameEvent,&colorVideoStreamHandle )))
 	{
-		hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,NUI_IMAGE_RESOLUTION_320x240,0,2,nextDepthFrameEvent,&depthStremHandle);
-		depthBufferWidth = 320;
-		depthBufferHeight = 240;
-	}
-	else // so must be 640x480
-	{
-		hr = NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,NUI_IMAGE_RESOLUTION_640x480,0,2,nextDepthFrameEvent,&depthStremHandle);
-		depthBufferWidth = 640;
-		depthBufferHeight = 480;
-	}
-
-	if (FAILED(hr))
-	{
-		MessageBoxA(0,"Failed to load Kinect depth stream, check if your Kinect ir working properly","Error",(MB_OK | MB_ICONEXCLAMATION));
+		MessageBoxA(0,"Failed to open color buffer.","Error",(MB_OK | MB_ICONEXCLAMATION));
 		isReady = false;
 		return;
 	}
+	unsigned long BufferWidth;
+	unsigned long BufferHeight;
+	// store resolution
+	NuiImageResolutionToSize(depthBufferResolution,BufferWidth,BufferHeight);
+	colorBufferHeight = BufferHeight;
+	colorBufferWidth = BufferWidth;
+
+	// opem stream to depth buffer
+	if(FAILED(sensor->NuiImageStreamOpen(NUI_IMAGE_TYPE_DEPTH,depthBufferResolution,0,2, nextDepthFrameEvent,&depthStreamHandle )))
+	{
+		MessageBoxA(0,"Failed to open depth buffer.","Error",(MB_OK | MB_ICONEXCLAMATION));
+		isReady = false;
+		return;
+	}
+
+	// store resolution
+	NuiImageResolutionToSize(depthBufferResolution,BufferWidth,BufferHeight);
+	depthBufferHeight = BufferHeight;
+	depthBufferWidth = BufferWidth;
 
 	// init color buffer with black screen
 	colorBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
@@ -139,9 +129,9 @@ void KinectSensor::NewVideoFrame()
 {
 
 	// create struct to hold frame information
-	const NUI_IMAGE_FRAME * pImageFrame = NULL;
+	NUI_IMAGE_FRAME * pImageFrame = NULL;
 
-	HRESULT hr = NuiImageStreamGetNextFrame(colorVideoStreamHandle,0,&pImageFrame);
+	HRESULT hr = sensor->NuiImageStreamGetNextFrame(colorVideoStreamHandle,0,pImageFrame);
 
 	if (FAILED(hr))
 	{
@@ -149,7 +139,7 @@ void KinectSensor::NewVideoFrame()
 	}
 
 	// get pixel buffer
-	NuiImageBuffer* pBuffer = pImageFrame->pFrameTexture;
+	NUI_IMAGE_FRAME* pBuffer = pImageFrame->pFrameTexture;
 	
 	KINECT_LOCKED_RECT LockedRect;
 	pBuffer->LockRect(0,&LockedRect,NULL,0);
