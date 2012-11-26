@@ -359,7 +359,7 @@ BYTE* InvertLines(BYTE *buffer,int width, int height)
 }
 
 
-void DumpDepthBuffer(int *buffer, int width, int height, const char* filename)
+void DumpDepthBuffer(short *buffer, int width, int height, const char* filename)
 {
 	// put the depth buffer on a txt file
 	std::ofstream file;
@@ -377,12 +377,12 @@ void DumpDepthBuffer(int *buffer, int width, int height, const char* filename)
 	file.write((char*)&width,sizeof(int));
 	file.write((char*)&height,sizeof(int));
 
-	file.write((char*)buffer,width * height * sizeof(int));
+	file.write((char*)buffer,width * height * sizeof(short));
 
 	file.close();
 }
 
-int* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
+short* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
 {
 	// opem file
 	std::fstream file;
@@ -411,8 +411,8 @@ int* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
 	size.y = height;
 
 	// alloc vector
-	int* buffer = (int*)malloc(width * height * sizeof(int));
-	file.read((char*)buffer,width * height * sizeof(int));
+	short* buffer = (short*)malloc(width * height * sizeof(short));
+	file.read((char*)buffer,width * height * sizeof(short));
 
 	file.close();
 

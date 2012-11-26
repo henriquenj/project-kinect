@@ -29,16 +29,17 @@ public:
 	/*Get color buffer from Kinect device. WARNING: it's your responsability to delete this memory!
 	*/
 	BYTE* GetColorBuffer();
-	/* Get depth buffer from Kinect device ready for rendering using some render device like OpenGL. This method doens't alloc new memory, but could show half-rendered frames
-	Each pixel is stored as a unsigned char and has 0-255 range.
-	*/
-	BYTE* GetDepthBufferToRender();
 	// Get depth buffer from Kinect device where each vector position hold the distance of this pixel to device in milimeters. WARNING: it's your responsability to delete this memory!
-	int* GetDepthBuffer();
+	short* GetDepthBuffer();
 	// Get pointer to color buffer without alloc new memory. But could show half-rendered frames.
 	inline const BYTE* GetUnreliableColorBuffer() const
 	{
 		return colorBuffer;
+	}
+	// Get pointer to depth buffer without alloc new memory. But could show half-rendered frames.
+	inline const short* GetUnreliableDepthBuffer()const
+	{
+		return depthBuffer;
 	}
 	// Return width of color buffer in pixels
 	inline const int GetWidthColor() const
@@ -81,14 +82,12 @@ private:
 	// to be called when there's a new depth frame
 	void NewDepthFrame();
 
-	void InvertBufferLines(BYTE* rawBuffer, BYTE* newBuffer,int width, int height, int bpc);
+	void InvertBuffer(short* rawBuffer, short* newBuffer,int width, int height, int bpc);
 	void InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, int height);
 
 	// the buffers
 	BYTE* colorBuffer;
-	BYTE* depthBuffer; // raw depth buffer
-	BYTE* depthBufferToRender; // the depth buffer ready to drawning on the screen
-	int* processedBuffer; // buffer that hold the information about each pixel distance to the kinect device
+	short* depthBuffer; // buffer that hold the information about each pixel distance to the kinect device
 	int colorBufferWidth, colorBufferHeight, depthBufferWidth, depthBufferHeight;
 	// bool that controls if the kinect device is ready to render frames
 	bool isReady;

@@ -11,7 +11,7 @@ ModelBuilder::~ModelBuilder(void)
 }
 
 
-void ModelBuilder::GeneratePoints(int *depthBuffer,glm::uvec2 size)
+void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 size)
 {
 	// erase previously
 	points.clear();
