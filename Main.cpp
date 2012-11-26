@@ -9,7 +9,7 @@
 #include "UtilitiesFunctions.h"
 
 #define WINDOWWIDTH 1280
-#define WINDOWHEIGHT 1024
+#define WINDOWHEIGHT 960
 
 KinectSensor* kinect = NULL;
 BufferProcess* bProcess = NULL;
@@ -19,8 +19,7 @@ ModelBuilder* builder = NULL;
 glm::uvec2 sizeColor; // color buffer size
 glm::uvec2 sizeDepth; // depth buffer size
 BYTE* colorBuffer = NULL;
-BYTE* depthBufferToRender = NULL;
-int* depthBuffer = NULL;
+short* depthBuffer = NULL;
 
 // markers
 std::vector<glm::uvec2> markers;
@@ -41,16 +40,16 @@ void RenderCallback()
 	{
 		// draw on screen buffer from kinect sensor
 		glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
-		glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_UNSIGNED_BYTE,kinect->GetDepthBufferToRender());
+		glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_SHORT,kinect->GetUnreliableDepthBuffer());
 	}
 
-	if (depthBufferToRender != NULL)
-	{
-		glDrawPixels(sizeDepth.x,sizeDepth.y,GL_LUMINANCE,GL_UNSIGNED_BYTE,depthBufferToRender);
-	}
 	if (colorBuffer != NULL)
 	{
 		glDrawPixels(sizeColor.x,sizeColor.y,GL_RGBA,GL_UNSIGNED_BYTE,colorBuffer);
+	}
+	if (depthBuffer != NULL)
+	{
+		glDrawPixels(sizeDepth.x,sizeDepth.y,GL_LUMINANCE,GL_SHORT,depthBuffer);
 	}
 
 	// draw markers
@@ -96,7 +95,7 @@ void Menu(int option)
 		{
 			//first get the buffers
 			BYTE* colorbuffer = kinect->GetColorBuffer();
-			int* depthbuffer = kinect->GetDepthBuffer();
+			short* depthbuffer = kinect->GetDepthBuffer();
 
 			filepath = ShowFileDialog(0,DialogSave,"PNG Files (*.png)","*.png");
 			if (filepath != NULL)
@@ -129,16 +128,6 @@ void Menu(int option)
 		if (filepath != NULL)
 		{
 			depthBuffer = ReadDepthBuffer(sizeDepth,filepath);
-			if(depthBuffer)
-			{
-				// convert to render
-				depthBufferToRender = new BYTE[sizeDepth.x * sizeDepth.y];
-				for (int i = 0; i < sizeDepth.x * sizeDepth.y; i++)
-				{
-					BYTE l = 255 - (BYTE)(256*depthBuffer[i]/0x0fff);
-					depthBufferToRender[i] = l / 2;
-				}
-			}
 		}
 		// load color buffer
 		filepath = ShowFileDialog(0,DialogOpen,"PNG Files","*.png");
@@ -150,7 +139,7 @@ void Menu(int option)
 	}
 	else if (option == 2)
 	{
-		if (colorBuffer == NULL || depthBufferToRender == NULL)
+		if (colorBuffer == NULL || depthBuffer == NULL)
 		{
 			// error! one or two buffers aren't loaded!
 			MessageBoxA(0,"Cannot process buffers. There is no loaded buffer!","Error",(MB_OK | MB_ICONEXCLAMATION));
@@ -196,7 +185,7 @@ void InitApp()
 	glMatrixMode(GL_MODELVIEW);
 	glPointSize(5);
 
-	kinect = new KinectSensor(RESOLUTION_1280X960,RESOLUTION_640X480);
+	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_320X240);
 	bProcess = new BufferProcess();
 	builder = new ModelBuilder();
 
@@ -214,7 +203,7 @@ void MouseCallback(int button, int state, int x, int y)
 	// process click events
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
-		if (colorBuffer == NULL || depthBufferToRender == NULL)
+		if (colorBuffer == NULL)
 		{
 			// error!
 			MessageBoxA(0,"Cannot add marker. There is no loaded buffer!","Error",(MB_OK | MB_ICONEXCLAMATION));

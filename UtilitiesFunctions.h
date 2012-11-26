@@ -58,9 +58,9 @@ void BGRAtoRGBA(BYTE *buffer,int x, int y);
 BYTE* InvertLines(BYTE *buffer,int width, int height);
 
 /*Dump the depth buffer onto a TXT file */
-void DumpDepthBuffer(int *buffer, int width, int height, const char* filename);
+void DumpDepthBuffer(short *buffer, int width, int height, const char* filename);
 
 // Read depth buffer saved on a file, fills the size structure with the size of the buffer. WARNING: you must delete this memory!
-int* ReadDepthBuffer(glm::uvec2 &size, const char* filename);
+short* ReadDepthBuffer(glm::uvec2 &size, const char* filename);
 
 #endif // __UTILITIES_FUNCIONS_HEADER__

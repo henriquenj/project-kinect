@@ -17,7 +17,7 @@ public:
 	~ModelBuilder(void);
 
 	// Generate points using the last depth buffer avaiable. WARNING: this will ERASE the previously created model 
-	void GeneratePoints(int *depthBuffer, glm::uvec2 size);
+	void GeneratePoints(short *depthBuffer, glm::uvec2 size);
 	// Write model on a .obj file using last model builded by GeneratePoints.
 	void WriteModelOnFile(std::string &filename);
 
