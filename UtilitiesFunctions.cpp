@@ -385,8 +385,8 @@ void DumpDepthBuffer(short *buffer, int width, int height, const char* filename)
 short* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
 {
 	// opem file
-	std::fstream file;
-	file.open(filename);
+	std::ifstream file;
+	file.open(filename,std::ios::binary);
 
 	if (!file.is_open())
 	{
