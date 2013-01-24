@@ -123,18 +123,18 @@ void Menu(int option)
 	}
 	else if (option == 1)
 	{
-		// load depth buffer file
-		filepath = ShowFileDialog(0,DialogOpen,".dep files","*.dep*");
-		if (filepath != NULL)
-		{
-			depthBuffer = ReadDepthBuffer(sizeDepth,filepath);
-		}
 		// load color buffer
 		filepath = ShowFileDialog(0,DialogOpen,"PNG Files","*.png");
 		if (filepath != NULL)
 		{
 			bool hasAlpha;
 			colorBuffer = LoadPng(filepath,sizeColor,hasAlpha);
+		}
+		// load depth buffer file
+		filepath = ShowFileDialog(0,DialogOpen,".dep files","*.dep*");
+		if (filepath != NULL)
+		{
+			depthBuffer = ReadDepthBuffer(sizeDepth,filepath);
 		}
 	}
 	else if (option == 2)
@@ -185,7 +185,7 @@ void InitApp()
 	glMatrixMode(GL_MODELVIEW);
 	glPointSize(5);
 
-	kinect = new KinectSensor(RESOLUTION_640X480,RESOLUTION_320X240);
+	kinect = new KinectSensor(RESOLUTION_1280X960,RESOLUTION_640X480);
 	bProcess = new BufferProcess();
 	builder = new ModelBuilder();
 
