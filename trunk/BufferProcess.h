@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <assert.h>
 #include <vector>
+#include <gl\glut.h>
 
 #include "glm\glm.hpp"
 #include "glm\ext.hpp"
@@ -19,11 +20,13 @@ public:
 	BufferProcess(void);
 	/* Reduce a color buffer to a simpler form, trying to find regions with the same color and grouping them together. Buffer must be in the RGBA format.
 	Return the processed buffer. The pixel marks must be already defined. WARNING: it's your responsability to delete this memory*/
-	BYTE* CategorizeObjects(BYTE* buffer, int size, int amountMarkers);
+	BYTE* CategorizeObjects(BYTE* buffer, int size);
 	// Add a marker to the list
 	void AddMarker(glm::uvec2 &marker);
 	// empty marker list
 	void ClearMarkers();
+	// Draw markers on screen
+	void DrawMarkers();
 	// Return the number of markers currently defined
 	inline int const GetMarkersSize()const
 	{
