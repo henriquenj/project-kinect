@@ -10,12 +10,10 @@ BufferProcess::~BufferProcess(void)
 {
 }
 
-BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size,int amountMarkers)
+BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size)
 {
 	// can't be NULL
 	assert(buffer != NULL);
-	// must have at least amountMarkers markers
-	assert(markers.size() == amountMarkers);
 	// at least one marker
 	assert(markers.size() > 0);
 
@@ -103,6 +101,17 @@ void BufferProcess::AddMarker(glm::uvec2 &marker)
 	}
 	// just add
 	markers.push_back(marker);
+}
+
+void BufferProcess::DrawMarkers()
+{
+	// draw markers
+	glBegin(GL_POINTS);
+	for (int p = 0; p < markers.size(); p++)
+	{
+		glVertex2i(markers[p].x,markers[p].y);
+	}
+	glEnd();
 }
 
 void BufferProcess::ClearMarkers()

@@ -9,7 +9,7 @@
 #include "UtilitiesFunctions.h"
 
 #define WINDOWWIDTH 1280
-#define WINDOWHEIGHT 960
+#define WINDOWHEIGHT 720
 
 KinectSensor* kinect = NULL;
 BufferProcess* bProcess = NULL;
@@ -20,9 +20,6 @@ glm::uvec2 sizeColor; // color buffer size
 glm::uvec2 sizeDepth; // depth buffer size
 BYTE* colorBuffer = NULL;
 short* depthBuffer = NULL;
-
-// markers
-std::vector<glm::uvec2> markers;
 
 void RenderCallback()
 {
@@ -52,14 +49,7 @@ void RenderCallback()
 		glDrawPixels(sizeDepth.x,sizeDepth.y,GL_LUMINANCE,GL_SHORT,depthBuffer);
 	}
 
-	// draw markers
-	glBegin(GL_POINTS);
-	for (int p = 0; p < markers.size(); p++)
-	{
-		glVertex2i(markers[p].x,markers[p].y);
-	}
-	glEnd();
-
+	bProcess->DrawMarkers();
 
 	glutSwapBuffers();
 }
@@ -147,7 +137,7 @@ void Menu(int option)
 		else
 		{
 			// check if there are enough markers
-			if (markers.size() == 0)
+			if (bProcess->GetMarkersSize() == 0)
 			{
 				MessageBoxA(0,"You must mark at least one marker","Error",(MB_OK | MB_ICONEXCLAMATION));
 			}
@@ -155,7 +145,7 @@ void Menu(int option)
 			{
 				// now execute the actual processing
 				BYTE* tempColor;
-				tempColor = bProcess->CategorizeObjects(colorBuffer,sizeColor.x * sizeColor.y * 4,markers.size());
+				tempColor = bProcess->CategorizeObjects(colorBuffer,sizeColor.x * sizeColor.y * 4);
 				delete colorBuffer;
 				colorBuffer = tempColor;
 			}
@@ -211,8 +201,6 @@ void MouseCallback(int button, int state, int x, int y)
 		else
 		{
 			glm::uvec2 tMarker(x,y);
-			// upon click, create a marker
-			markers.push_back(tMarker);
 			// add in the process buffer
 			bProcess->AddMarker(tMarker);
 		}
