@@ -157,13 +157,21 @@ void Menu(int option)
 		{
 			builder->GeneratePoints(depthBuffer,sizeDepth);
 			const char * filepath = ShowFileDialog(0,DialogSave,"OBJ Files","*.obj");
-			std::string path(filepath);
-			builder->WriteModelOnFile(path);
+			if (filepath != NULL)
+			{
+				std::string path(filepath);
+				builder->WriteModelOnFile(path);
+			}
 		}
 		else
 		{
 			MessageBoxA(0,"Cannot process buffers. There is no loaded buffer!","Error",(MB_OK | MB_ICONEXCLAMATION));
 		}
+	}
+	// clear markers
+	else if (option == 4)
+	{
+		bProcess->ClearMarkers();
 	}
 }
 void InitApp()
@@ -185,6 +193,7 @@ void InitApp()
 	glutAddMenuEntry("Load Buffers From File",1);
 	glutAddMenuEntry("Process buffers",2);
 	glutAddMenuEntry("Generate model",3);
+	glutAddMenuEntry("Clear Markers",4);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
