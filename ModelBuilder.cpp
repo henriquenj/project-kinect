@@ -50,9 +50,6 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 size)
 		// put on vector
 		points[b] = tVertex;
 	}
-
-	// delete memory
-	delete depthBuffer;
 }
 
 void ModelBuilder::WriteModelOnFile(std::string &filename)
