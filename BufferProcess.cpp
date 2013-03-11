@@ -73,7 +73,7 @@ BYTE* BufferProcess::CategorizeObjects(BYTE* buffer, int size)
 			if (distance < smallerDistance)
 			{
 				// update number
-				distance = smallerDistance;
+				smallerDistance = distance;
 				// update index
 				markerNumber = p;
 			}
