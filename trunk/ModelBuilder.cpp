@@ -11,7 +11,7 @@ ModelBuilder::~ModelBuilder(void)
 }
 
 
-void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 size)
+void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 {
 	// erase previously
 	points.clear();
@@ -33,9 +33,12 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 size)
 			min = depthBuffer[p];
 		}
 	}
-
 	// points coordenates will be built using those values as reference
-	// ...in the future
+	
+	// must group nearby pixels together
+	// first, we need a bool array that can store if a given pixel has already been categorized
+	bool *isGrouped = new bool[bufferSize];
+	memset(isGrouped,0,bufferSize);
 
 	// reserve space
 	points.resize(bufferSize);
@@ -50,6 +53,22 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 size)
 		// put on vector
 		points[b] = tVertex;
 	}
+
+	// call BuildPolygons on any uncategorized vertex
+	for (int p = 0; p < bufferSize; p++)
+	{
+		if (!isGrouped[p])
+		{
+			BuildPolygon(isGrouped,size,-1);
+		}
+	}
+
+	delete isGrouped;
+}
+
+void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int previousIndex)
+{
+	// TODO: WRITE THIS
 }
 
 void ModelBuilder::WriteModelOnFile(std::string &filename)
