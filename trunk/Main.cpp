@@ -95,13 +95,17 @@ void Menu(int option)
 				//invert image
 				colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 				// dump color buffer to a PNG file
-				SavePng(filepath,colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+				std::string filepath_str(filepath);
+				AddExtensionWithChecking(filepath_str,std::string("png"));
+				SavePng(filepath_str.c_str(),colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 			}
 			filepath = ShowFileDialog(0,DialogSave,".dep files","*.dep*");
 			if (filepath != NULL)
 			{
+				std::string filepath_str(filepath);
+				AddExtensionWithChecking(filepath_str,std::string("dep"));
 				// dump depth buffer to a file
-				DumpDepthBuffer(depthbuffer,kinect->GetWidthDepth(),kinect->GetHeightDepth(),filepath);
+				DumpDepthBuffer(depthbuffer,kinect->GetWidthDepth(),kinect->GetHeightDepth(),filepath_str.c_str());
 			}
 			delete colorbuffer;
 			delete depthbuffer;

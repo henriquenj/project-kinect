@@ -419,3 +419,15 @@ short* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
 	// return buffer
 	return buffer;
 }
+
+void AddExtensionWithChecking(std::string &filepath, std::string &extension)
+{
+	// check if the user typed the extension
+	std::string currentExtension = filepath.substr(filepath.size() - 3);
+	if (currentExtension.compare(extension) != 0)
+	{
+		// user didn't type the extension, add to string
+		filepath += '.';
+		filepath += extension;
+	}
+}

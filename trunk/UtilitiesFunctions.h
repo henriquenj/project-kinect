@@ -63,4 +63,7 @@ void DumpDepthBuffer(short *buffer, int width, int height, const char* filename)
 // Read depth buffer saved on a file, fills the size structure with the size of the buffer. WARNING: you must delete this memory!
 short* ReadDepthBuffer(glm::uvec2 &size, const char* filename);
 
+// add extension to a filename if there isn't one
+void AddExtensionWithChecking(std::string &filepath, std::string &extension);
+
 #endif // __UTILITIES_FUNCIONS_HEADER__

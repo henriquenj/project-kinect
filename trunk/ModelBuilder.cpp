@@ -59,16 +59,75 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	{
 		if (!isGrouped[p])
 		{
-			BuildPolygon(isGrouped,size,-1);
+			BuildPolygon(isGrouped,size,-1,depthBuffer);
 		}
 	}
 
 	delete isGrouped;
 }
 
-void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int previousIndex)
+void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentIndex,short* depthBuffer)
 {
-	// TODO: WRITE THIS
+	int neighboursIndexes[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
+	int temp_index;
+	glm::uvec2 currentPosition;
+	/*
+		table of indexes on neighbours array
+		0 - top left
+		1 - top center
+		2 - top right
+		3 - center left
+		4 - center right
+		5 - botton left
+		6 - botton center
+		7 - botton right
+	*/
+
+	// get position of the pixel in the matrix
+	currentPosition.x = currentIndex % size.x;
+	currentPosition.y = currentIndex / size.x;
+
+	// find indexes
+
+	// top left
+	// check if isn't on top left corner
+	if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
+	{
+		// grab index
+		neighboursIndexes[0] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
+	}
+
+	// top center
+	// check if isn't on the top line
+	if (currentPosition.y-1 >= 0)
+	{
+		neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y-1) * size.x;
+	}
+
+	// top right
+	// check if isn't on the top rigt corner
+	if (currentPosition.x+1 <= size.x && currentPosition.y-1 <= size.x)
+	{
+		neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y-1) * size.x;
+	}
+
+	// center left
+	// check if isn't on the first row
+	if (currentPosition.x-1 >= 0)
+	{
+		neighboursIndexes[3] = (currentPosition.x-1) + (currentPosition.y) * size.x;
+	}
+
+	// center right
+	// check if isn't on the last row
+	if (currentPosition.x+1 <= size.x)
+	{
+		neighboursIndexes[4] = (currentPosition.x+1) + (currentPosition.y) * size.x;
+	}
+
+	// TODO: FINISH THE LAST THREE CHECKS
+	
+
 }
 
 void ModelBuilder::WriteModelOnFile(std::string &filename)
@@ -91,6 +150,8 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 	}
 	else
 	{
+		AddExtensionWithChecking(filename,std::string("obj"));
+
 		// ok, there's a name on the file, must check if it's a real one
 		modelFile.open(filename.c_str());
 	}

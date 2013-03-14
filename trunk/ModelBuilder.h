@@ -7,6 +7,7 @@
 
 #include "glm\glm.hpp"
 #include "KinectSensor.h"
+#include "UtilitiesFunctions.h"
 
 
 // class that generate geometry data from Kinect buffers
@@ -26,8 +27,9 @@ private:
 	std::vector<glm::vec3> points;
 	// vector of triangles to hold the connectivity
 	std::vector<glm::uvec3> triangles;
-	/* build polygons recursively based on nearby points. Index refers to the previous called vertex, -1 for none */
-	void BuildPolygon(bool * isGrouped, glm::uvec2 &size, int previousIndex);
+	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first */
+	void BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentIndex, short* depthBuffer);
+
 };
 
 
