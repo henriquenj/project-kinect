@@ -57,9 +57,10 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	// call BuildPolygons on any uncategorized vertex
 	for (int p = 0; p < bufferSize; p++)
 	{
+		currentDepth = 0;
 		if (!isGrouped[p])
 		{
-			BuildPolygon(isGrouped,size,-1,depthBuffer);
+			BuildPolygon(isGrouped,size,0,depthBuffer);
 		}
 	}
 
@@ -68,9 +69,10 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 
 void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentIndex,short* depthBuffer)
 {
+
 	int neighboursIndexes[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 	int temp_index;
-	glm::uvec2 currentPosition;
+	glm::ivec2 currentPosition;
 	/*
 		table of indexes on neighbours array
 		0 - top left
@@ -96,37 +98,71 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentI
 		// grab index
 		neighboursIndexes[0] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
 	}
-
 	// top center
 	// check if isn't on the top line
 	if (currentPosition.y-1 >= 0)
 	{
 		neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y-1) * size.x;
 	}
-
 	// top right
 	// check if isn't on the top rigt corner
 	if (currentPosition.x+1 <= size.x && currentPosition.y-1 <= size.x)
 	{
 		neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y-1) * size.x;
 	}
-
 	// center left
 	// check if isn't on the first row
 	if (currentPosition.x-1 >= 0)
 	{
 		neighboursIndexes[3] = (currentPosition.x-1) + (currentPosition.y) * size.x;
 	}
-
 	// center right
 	// check if isn't on the last row
 	if (currentPosition.x+1 <= size.x)
 	{
 		neighboursIndexes[4] = (currentPosition.x+1) + (currentPosition.y) * size.x;
 	}
-
-	// TODO: FINISH THE LAST THREE CHECKS
+	// botton left
+	// check if isn't on the botton left corner
+	if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
+	{
+		neighboursIndexes[5] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
+	}
+	// botton center
+	// check if isn't on the last line
+	if (currentPosition.y+1 <= size.y)
+	{
+		neighboursIndexes[6] = (currentPosition.x) + (currentPosition.y+1) * size.x;
+	}
+	// botton right
+	// check if isn't on the botton right corner
+	if (currentPosition.y+1 <= size.y && currentPosition.x+1 <= size.x)
+	{
+		neighboursIndexes[7] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
+	}
 	
+
+	//iterate through all the pixels
+	for (int p = 0; p < 8; p++)
+	{
+		// -1 means that there are no neighbor
+		if (neighboursIndexes[p] != -1)
+		{
+			// only process pixels that weren't processed yet
+			if (!isGrouped[neighboursIndexes[p]])
+			{
+				if (currentDepth < MAXDEPTH) // to prevent stack overflow
+				{
+					depthBuffer[neighboursIndexes[p]] = 255;
+					// set pixel as grouped
+					isGrouped[neighboursIndexes[p]] = true;
+					// call function again
+					currentDepth++;
+					this->BuildPolygon(isGrouped,size,neighboursIndexes[p],depthBuffer);
+				}
+			}
+		}
+	}
 
 }
 

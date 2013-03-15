@@ -9,6 +9,8 @@
 #include "KinectSensor.h"
 #include "UtilitiesFunctions.h"
 
+// max depth allowed by the recursive algorithm
+#define MAXDEPTH 1000
 
 // class that generate geometry data from Kinect buffers
 class ModelBuilder
@@ -30,6 +32,9 @@ private:
 	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first */
 	void BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentIndex, short* depthBuffer);
 
+	// for control recursivity
+	// current depth
+	int currentDepth;
 };
 
 
