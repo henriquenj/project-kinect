@@ -3,6 +3,7 @@
 
 ModelBuilder::ModelBuilder()
 {
+	currentDepth = 0;
 }
 
 
@@ -40,6 +41,17 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	bool *isGrouped = new bool[bufferSize];
 	memset(isGrouped,0,bufferSize);
 
+	// call BuildPolygons on any uncategorized vertex
+	for (int p = 0; p < bufferSize; p++)
+	{
+		if (!isGrouped[p])
+		{
+			BuildPolygon(isGrouped,size,p,depthBuffer);
+			currentDepth = 0;
+		}
+	}
+	delete isGrouped;
+
 	// reserve space
 	points.resize(bufferSize);
 	for (int b = 0; b < bufferSize; b++)
@@ -53,21 +65,9 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 		// put on vector
 		points[b] = tVertex;
 	}
-
-	// call BuildPolygons on any uncategorized vertex
-	for (int p = 0; p < bufferSize; p++)
-	{
-		currentDepth = 0;
-		if (!isGrouped[p])
-		{
-			BuildPolygon(isGrouped,size,0,depthBuffer);
-		}
-	}
-
-	delete isGrouped;
 }
 
-void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentIndex,short* depthBuffer)
+void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIndex,short* depthBuffer)
 {
 
 	int neighboursIndexes[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
@@ -130,18 +130,18 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentI
 	}
 	// botton center
 	// check if isn't on the last line
-	if (currentPosition.y+1 <= size.y)
+	if (currentPosition.y+1 < size.y)
 	{
 		neighboursIndexes[6] = (currentPosition.x) + (currentPosition.y+1) * size.x;
 	}
 	// botton right
 	// check if isn't on the botton right corner
-	if (currentPosition.y+1 <= size.y && currentPosition.x+1 <= size.x)
+	if (currentPosition.y+1 < size.y && currentPosition.x+1 < size.x)
 	{
 		neighboursIndexes[7] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
 	}
 	
-
+	
 	//iterate through all the pixels
 	for (int p = 0; p < 8; p++)
 	{
@@ -156,14 +156,13 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentI
 					depthBuffer[neighboursIndexes[p]] = 255;
 					// set pixel as grouped
 					isGrouped[neighboursIndexes[p]] = true;
-					// call function again
 					currentDepth++;
+					// call function again
 					this->BuildPolygon(isGrouped,size,neighboursIndexes[p],depthBuffer);
 				}
 			}
 		}
 	}
-
 }
 
 void ModelBuilder::WriteModelOnFile(std::string &filename)
