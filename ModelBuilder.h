@@ -10,7 +10,7 @@
 #include "UtilitiesFunctions.h"
 
 // max depth allowed by the recursive algorithm
-#define MAXDEPTH 1000
+#define MAXDEPTH 500
 
 // class that generate geometry data from Kinect buffers
 class ModelBuilder
@@ -29,8 +29,8 @@ private:
 	std::vector<glm::vec3> points;
 	// vector of triangles to hold the connectivity
 	std::vector<glm::uvec3> triangles;
-	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first */
-	void BuildPolygon(bool * isGrouped, glm::uvec2 &size, int currentIndex, short* depthBuffer);
+	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first. */
+	void BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIndex, short* depthBuffer);
 
 	// for control recursivity
 	// current depth
