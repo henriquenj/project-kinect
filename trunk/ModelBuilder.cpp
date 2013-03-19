@@ -153,12 +153,42 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIn
 			{
 				if (currentDepth < MAXDEPTH) // to prevent stack overflow
 				{
-					depthBuffer[neighboursIndexes[p]] = 255;
-					// set pixel as grouped
-					isGrouped[neighboursIndexes[p]] = true;
-					currentDepth++;
-					// call function again
-					this->BuildPolygon(isGrouped,size,neighboursIndexes[p],depthBuffer);
+					// here is the CORE
+					// check if this pixel deserve to be grouped with the previous one
+					// difference cannot be larger than MAXDIFFERENCE
+					if (abs(depthBuffer[currentIndex] - depthBuffer[neighboursIndexes[p]]) < MAXDIFFERENCE)
+					{
+						bool newTriangle = true;
+						//ok, got there, se we need to put this vertex inside a triangle
+						// first is to check if the previous triangle is full OR if the triangle belongs to a different zone
+						int t_index = triangles.size()-1;
+						if (triangles.size() > 0 && triangles[t_index].size() < 3)
+						{
+							// that's a fairly complex line
+							if (abs(depthBuffer[currentIndex] - depthBuffer[triangles[t_index][triangles[t_index].size()-1]]) < MAXDIFFERENCE)
+							{
+								// put vertex in this triangle
+								triangles[t_index].push_back(neighboursIndexes[p]);
+								newTriangle = false;
+							}
+						}
+						// if not, create new one
+						if (newTriangle == true)
+						{
+							std::vector<int> n_triangle;
+							// put vertex index AND previous index
+							n_triangle.push_back(currentIndex);
+							n_triangle.push_back(neighboursIndexes[p]);
+							// put in the main vector
+							triangles.push_back(n_triangle);
+						}
+
+						// set pixel as grouped
+						isGrouped[neighboursIndexes[p]] = true;
+						currentDepth++;
+						// call function again
+						this->BuildPolygon(isGrouped,size,neighboursIndexes[p],depthBuffer);
+					}
 				}
 			}
 		}
@@ -199,12 +229,20 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 	// put vertices information
 	for (int p = 0; p < points.size(); p++)
 	{
-		if ((p % 3) == 0 && p > 2) // every 3 verties, a face
-		{
-			modelFile << "f " << p << " " << p-1 << " " << p-2 << std::endl;
-		}
 		modelFile << "v " << points[p].x << " " << points[p].y << " " << points[p].z << std::endl;
-		//modelFile << "f " << p+1 << " " << p+1 << " " << p+1 << std::endl;
+	}
+
+	// put triangle sinformation
+	for (int b = 0; b < triangles.size(); b++)
+	{
+		// put each vertex 
+		modelFile << "f ";
+		for (int t = 0; t < triangles[b].size(); t++)
+		{
+			modelFile << " ";
+			modelFile << triangles[b][t] + 1;// we need this +1 because obj file format indexes beggins on 1
+		}
+		modelFile << std::endl;
 	}
 
 	// close file
