@@ -51,6 +51,7 @@ void RenderCallback()
 
 	bProcess->DrawMarkers();
 
+	Sleep(50); // to minimize processor use
 	glutSwapBuffers();
 }
 

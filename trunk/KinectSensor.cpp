@@ -122,6 +122,7 @@ KinectSensor::~KinectSensor(void)
 		delete depthBuffer;
 		DeleteCriticalSection(&criticalSection);
 	}
+	
 }
 
 void KinectSensor::NewVideoFrame()
