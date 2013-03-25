@@ -28,7 +28,7 @@ public:
 
 private:
 	// vector of points
-	std::vector<glm::vec3> points;
+	std::vector<glm::uvec3> points;
 	// vector of triangles to hold the connectivity
 	std::vector<std::vector<int>> triangles;
 	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first. */
