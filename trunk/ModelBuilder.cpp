@@ -16,6 +16,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 {
 	// erase previously
 	points.clear();
+	triangles.clear();
 
 	int max = 0,min = 0,bufferSize;
 	bufferSize = size.x * size.y;
@@ -35,6 +36,11 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 		}
 	}
 	// points coordenates will be built using those values as reference
+
+#ifdef _DEBUG
+	//compute time that the computer took to build the polygons
+	clock_t begin = clock();
+#endif //_DEBUG
 	
 	// must group nearby pixels together
 	// first, we need a bool array that can store if a given pixel has already been categorized
@@ -65,6 +71,13 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 		// put on vector
 		points[b] = tVertex;
 	}
+
+#ifdef _DEBUG
+	// finish counting time
+	clock_t end = clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << std::endl << "Time to precess the points (seconds): " << elapsed_secs << std::endl;
+#endif //_DEBUG
 }
 
 void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIndex,short* depthBuffer)
@@ -167,7 +180,18 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIn
 							// that's a fairly complex line
 							if (abs(depthBuffer[currentIndex] - depthBuffer[triangles[t_index][triangles[t_index].size()-1]]) < MAXDIFFERENCE)
 							{
-								// put vertex in this triangle
+								bool alreadyExist = false;
+								// check if the vertex isn't already on this triangle
+								for (int b = 0; b < triangles[t_index].size(); b++)
+								{
+									if(triangles[t_index][b] == neighboursIndexes[p])
+									{
+										alreadyExist = true;
+									}
+								}
+								// get out of this vertex
+								if (alreadyExist){continue;}
+								//case not, put vertex in this triangle
 								triangles[t_index].push_back(neighboursIndexes[p]);
 								newTriangle = false;
 							}
@@ -197,6 +221,12 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIn
 
 void ModelBuilder::WriteModelOnFile(std::string &filename)
 {
+
+#ifdef _DEBUG
+	//compute time that the computer took to save the model on hard drive
+	clock_t begin = clock();
+#endif //_DEBUG
+
 	// first check if the model has been built
 	if (points.empty())
 	{
@@ -247,4 +277,11 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 
 	// close file
 	modelFile.close();
+
+#ifdef _DEBUG
+	// finish counting time
+	clock_t end = clock();
+	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << std::endl << "Time to save model on file (seconds): " << elapsed_secs << std::endl;
+#endif //_DEBUG
 }
