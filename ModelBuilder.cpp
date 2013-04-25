@@ -271,13 +271,6 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 	// put triangle sinformation
 	for (int b = 0; b < triangles.size(); b++)
 	{
-		//modelFile << "f ";
-		//for (int t = 0; t < triangles[b].size(); t++)
-		//{s
-		//	modelFile << " ";
-		//	modelFile << triangles[b][t] + 1;// we need this +1 because obj file format indexes beggins on 1
-		//}
-		//modelFile << std::endl;
 		fprintf(modelFile,"%s","f");
 		for (int t = 0; t < triangles[b].size(); t++)
 		{
@@ -288,7 +281,6 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 	}
 
 	// close file
-	//modelFile.close();
 	fclose(modelFile);
 
 	// finish counting time
