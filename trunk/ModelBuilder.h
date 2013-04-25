@@ -10,8 +10,7 @@
 #include "KinectSensor.h"
 #include "UtilitiesFunctions.h"
 
-// max depth allowed by the recursive algorithm
-#define MAXDEPTH 500
+// max difference allowed by the alogorithm
 #define MAXDIFFERENCE 500
 
 // class that generate geometry data from Kinect buffers
@@ -29,14 +28,10 @@ public:
 private:
 	// vector of points
 	std::vector<glm::uvec3> points;
-	// vector of triangles to hold the connectivity
-	std::vector<std::vector<int>> triangles;
+	// vector of quads to hold the connectivity
+	std::vector<glm::vec4> quads;
 	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first. */
-	void BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIndex, short* depthBuffer);
-
-	// for control recursivity
-	// current depth
-	int currentDepth;
+	void BuildPolygon(glm::uvec2 size, short* depthBuffer);
 };
 
 

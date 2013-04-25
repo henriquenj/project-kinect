@@ -3,7 +3,7 @@
 
 ModelBuilder::ModelBuilder()
 {
-	currentDepth = 0;
+	
 }
 
 
@@ -41,20 +41,9 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	clock_t begin = clock();
 	
 	// must group nearby pixels together
-	// first, we need a bool array that can store if a given pixel has already been categorized
-	bool *isGrouped = new bool[bufferSize];
-	memset(isGrouped,0,bufferSize);
 
-	// call BuildPolygons on any uncategorized vertex
-	for (int p = 0; p < bufferSize; p++)
-	{
-		if (!isGrouped[p])
-		{
-			BuildPolygon(isGrouped,size,p,depthBuffer);
-			currentDepth = 0;
-		}
-	}
-	delete isGrouped;
+	// call BuildPolygons 
+	BuildPolygon(size,depthBuffer);
 
 	// reserve space
 	points.resize(bufferSize);
@@ -76,13 +65,31 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	std::cout << std::endl << "Time to precess the points (seconds): " << elapsed_secs << std::endl;
 }
 
-void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIndex,short* depthBuffer)
+void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 {
+	/* 
+		ok, let's change things a bit, AGAIN
 
-	int neighboursIndexes[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
-	int temp_index;
-	glm::ivec2 currentPosition;
-	/*
+		IMPORTANT: now the program will connect pixels with more than one quad, that was the problem the whole time
+		IMPORTANT 2: now the program will also use QUADS!
+
+		now let's try code this
+	*/
+
+	// create int array to control how many quads belong a specific pixel 
+	int * pixelQuad = new int[size.x * size.y];
+	// fill with 0
+	memset(pixelQuad,0,size.x * size.y * sizeof(int));
+
+
+	//iterate through all the pixels
+	for (int currentIndex = 0; currentIndex < size.x * size.y; currentIndex++)
+	{
+		int neighboursIndexes[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
+		int temp_index;
+		glm::ivec2 currentPosition;
+
+		/*
 		table of indexes on neighbours array
 		0 - top left
 		1 - top center
@@ -92,123 +99,74 @@ void ModelBuilder::BuildPolygon(bool * isGrouped, glm::uvec2 size, int currentIn
 		5 - botton left
 		6 - botton center
 		7 - botton right
-	*/
+		*/
 
-	// get position of the pixel in the matrix
-	currentPosition.x = currentIndex % size.x;
-	currentPosition.y = currentIndex / size.x;
+		// get position of the pixel in the matrix
+		currentPosition.x = currentIndex % size.x;
+		currentPosition.y = currentIndex / size.x;
 
-	// find indexes
+		// find indexes
 
-	// top left
-	// check if isn't on top left corner
-	if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
-	{
-		// grab index
-		neighboursIndexes[0] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
-	}
-	// top center
-	// check if isn't on the top line
-	if (currentPosition.y-1 >= 0)
-	{
-		neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y-1) * size.x;
-	}
-	// top right
-	// check if isn't on the top rigt corner
-	if (currentPosition.x+1 <= size.x && currentPosition.y-1 <= size.x)
-	{
-		neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y-1) * size.x;
-	}
-	// center left
-	// check if isn't on the first row
-	if (currentPosition.x-1 >= 0)
-	{
-		neighboursIndexes[3] = (currentPosition.x-1) + (currentPosition.y) * size.x;
-	}
-	// center right
-	// check if isn't on the last row
-	if (currentPosition.x+1 <= size.x)
-	{
-		neighboursIndexes[4] = (currentPosition.x+1) + (currentPosition.y) * size.x;
-	}
-	// botton left
-	// check if isn't on the botton left corner
-	if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
-	{
-		neighboursIndexes[5] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
-	}
-	// botton center
-	// check if isn't on the last line
-	if (currentPosition.y+1 < size.y)
-	{
-		neighboursIndexes[6] = (currentPosition.x) + (currentPosition.y+1) * size.x;
-	}
-	// botton right
-	// check if isn't on the botton right corner
-	if (currentPosition.y+1 < size.y && currentPosition.x+1 < size.x)
-	{
-		neighboursIndexes[7] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
-	}
-	
-	
-	//iterate through all the pixels
-	for (int p = 0; p < 8; p++)
-	{
-		// -1 means that there are no neighbor
-		if (neighboursIndexes[p] != -1)
+		// top left
+		// check if isn't on top left corner
+		if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
 		{
-			// only process pixels that weren't processed yet
-			if (!isGrouped[neighboursIndexes[p]])
-			{
-				if (currentDepth < MAXDEPTH) // to prevent stack overflow
-				{
-					// here is the CORE
-					// check if this pixel deserve to be grouped with the previous one
-					// difference cannot be larger than MAXDIFFERENCE
-					if (abs(depthBuffer[currentIndex] - depthBuffer[neighboursIndexes[p]]) < MAXDIFFERENCE)
-					{
-						bool newTriangle = true;
-						//ok, got there, se we need to put this vertex inside a triangle
-						// first is to check if the previous triangle is full OR if the triangle belongs to a different zone
-						int t_index = triangles.size()-1;
-						if (triangles.size() > 0 && triangles[t_index].size() < 3)
-						{
-							// that's a fairly complex line
-							if (abs(depthBuffer[currentIndex] - depthBuffer[triangles[t_index][triangles[t_index].size()-1]]) < MAXDIFFERENCE)
-							{
-								bool alreadyExist = false;
-								// check if the vertex isn't already on this triangle
-								for (int b = 0; b < triangles[t_index].size(); b++)
-								{
-									if(triangles[t_index][b] == neighboursIndexes[p])
-									{
-										alreadyExist = true;
-									}
-								}
-								// get out of this vertex
-								if (alreadyExist){continue;}
-								//case not, put vertex in this triangle
-								triangles[t_index].push_back(neighboursIndexes[p]);
-								newTriangle = false;
-							}
-						}
-						// if not, create new one
-						if (newTriangle == true)
-						{
-							std::vector<int> n_triangle;
-							// put vertex index AND previous index
-							n_triangle.push_back(currentIndex);
-							n_triangle.push_back(neighboursIndexes[p]);
-							// put in the main vector
-							triangles.push_back(n_triangle);
-						}
+			// grab index
+			neighboursIndexes[0] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
+		}
+		// top center
+		// check if isn't on the top line
+		if (currentPosition.y-1 >= 0)
+		{
+			neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y-1) * size.x;
+		}
+		// top right
+		// check if isn't on the top rigt corner
+		if (currentPosition.x+1 <= size.x && currentPosition.y-1 <= size.x)
+		{
+			neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y-1) * size.x;
+		}
+		// center left
+		// check if isn't on the first row
+		if (currentPosition.x-1 >= 0)
+		{
+			neighboursIndexes[3] = (currentPosition.x-1) + (currentPosition.y) * size.x;
+		}
+		// center right
+		// check if isn't on the last row
+		if (currentPosition.x+1 <= size.x)
+		{
+			neighboursIndexes[4] = (currentPosition.x+1) + (currentPosition.y) * size.x;
+		}
+		// botton left
+		// check if isn't on the botton left corner
+		if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
+		{
+			neighboursIndexes[5] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
+		}
+		// botton center
+		// check if isn't on the last line
+		if (currentPosition.y+1 < size.y)
+		{
+			neighboursIndexes[6] = (currentPosition.x) + (currentPosition.y+1) * size.x;
+		}
+		// botton right
+		// check if isn't on the botton right corner
+		if (currentPosition.y+1 < size.y && currentPosition.x+1 < size.x)
+		{
+			neighboursIndexes[7] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
+		}
 
-						// set pixel as grouped
-						isGrouped[neighboursIndexes[p]] = true;
-						currentDepth++;
-						// call function again
-						this->BuildPolygon(isGrouped,size,neighboursIndexes[p],depthBuffer);
-					}
+		// now must iterate through all the neighbors searching for the one with most aproximate value
+		for(int p = 0; p < 8; p++)
+		{
+			// rule out the ones with -1
+			if (neighboursIndexes[p] != -1)
+			{
+				//difference must be smaller than MAXDIFFERENCE
+				if (abs((depthBuffer[neighboursIndexes[p]] - depthBuffer[currentIndex])) < MAXDIFFERENCE)
+				{
+					// TODO: MAKE THE CONNECTIONS			
 				}
 			}
 		}
@@ -272,7 +230,7 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 	for (int b = 0; b < triangles.size(); b++)
 	{
 		fprintf(modelFile,"%s","f");
-		for (int t = 0; t < triangles[b].size(); t++)
+		for (int t = 0; t < 3; t++)
 		{
 			fprintf(modelFile,"%c", ' ');
 			fprintf(modelFile,"%d",triangles[b][t]+1);
