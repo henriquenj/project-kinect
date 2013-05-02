@@ -16,7 +16,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 {
 	// erase previously
 	points.clear();
-	triangles.clear();
+	quads.clear();
 
 	int max = 0,min = 0,bufferSize;
 	bufferSize = size.x * size.y;
@@ -76,29 +76,18 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 		now let's try code this
 	*/
 
-	// create int array to control how many quads belong a specific pixel 
-	int * pixelQuad = new int[size.x * size.y];
-	// fill with 0
-	memset(pixelQuad,0,size.x * size.y * sizeof(int));
-
-
 	//iterate through all the pixels
 	for (int currentIndex = 0; currentIndex < size.x * size.y; currentIndex++)
 	{
-		int neighboursIndexes[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
+		int neighboursIndexes[3] = {-1,-1,-1};
 		int temp_index;
 		glm::ivec2 currentPosition;
 
 		/*
 		table of indexes on neighbours array
-		0 - top left
-		1 - top center
-		2 - top right
-		3 - center left
-		4 - center right
-		5 - botton left
-		6 - botton center
-		7 - botton right
+		0 - center right
+		1 - botton center
+		2 - botton right
 		*/
 
 		// get position of the pixel in the matrix
@@ -107,58 +96,41 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 
 		// find indexes
 
-		// top left
-		// check if isn't on top left corner
-		if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
-		{
-			// grab index
-			neighboursIndexes[0] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
-		}
-		// top center
-		// check if isn't on the top line
-		if (currentPosition.y-1 >= 0)
-		{
-			neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y-1) * size.x;
-		}
-		// top right
-		// check if isn't on the top rigt corner
-		if (currentPosition.x+1 <= size.x && currentPosition.y-1 <= size.x)
-		{
-			neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y-1) * size.x;
-		}
-		// center left
-		// check if isn't on the first row
-		if (currentPosition.x-1 >= 0)
-		{
-			neighboursIndexes[3] = (currentPosition.x-1) + (currentPosition.y) * size.x;
-		}
 		// center right
 		// check if isn't on the last row
 		if (currentPosition.x+1 <= size.x)
 		{
-			neighboursIndexes[4] = (currentPosition.x+1) + (currentPosition.y) * size.x;
-		}
-		// botton left
-		// check if isn't on the botton left corner
-		if (currentPosition.x-1 >= 0 && currentPosition.y-1 >= 0)
-		{
-			neighboursIndexes[5] = (currentPosition.x-1) + (currentPosition.y-1) * size.x;
+			neighboursIndexes[0] = (currentPosition.x+1) + (currentPosition.y) * size.x;
 		}
 		// botton center
 		// check if isn't on the last line
 		if (currentPosition.y+1 < size.y)
 		{
-			neighboursIndexes[6] = (currentPosition.x) + (currentPosition.y+1) * size.x;
+			neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y+1) * size.x;
 		}
 		// botton right
 		// check if isn't on the botton right corner
 		if (currentPosition.y+1 < size.y && currentPosition.x+1 < size.x)
 		{
-			neighboursIndexes[7] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
+			neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
 		}
 
-		// now must iterate through all the neighbors searching for the one with most aproximate value
-		for(int p = 0; p < 8; p++)
+		// control how many realible neibhours exist, must be at least 3 to make a quad
+		int neighboursHit = 0;
+		// now must iterate through the botton neighbors (except botton right) searching for the one with most aproximate value
+
+		/*
+		I'm gonna draw to make it clear
+		
+				.    .   .   .
+				.    o   o   .
+				.    o   o   .
+				.    .   .   .
+
+		*/
+		// temporary quad
+		glm::uvec4 tQuad;
+		for(int p = 0; p < 3; p++)
 		{
 			// rule out the ones with -1
 			if (neighboursIndexes[p] != -1)
@@ -166,9 +138,22 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 				//difference must be smaller than MAXDIFFERENCE
 				if (abs((depthBuffer[neighboursIndexes[p]] - depthBuffer[currentIndex])) < MAXDIFFERENCE)
 				{
-					// TODO: MAKE THE CONNECTIONS			
+					// hit!
+					neighboursHit++;
+					// first vertex? add the own pixel
+					if (neighboursHit == 1) {tQuad[0] = currentIndex;}
+					// put neighbor
+					tQuad[neighboursHit] = neighboursIndexes[p];
 				}
 			}
+		}
+
+		//TODO: MAKE THE PROGRAM BUILD TRIANGLES TOO
+		// does this have enough vertex?
+		if (neighboursHit == 3)
+		{
+			// put on the quads vector
+			quads.push_back(tQuad);
 		}
 	}
 }
@@ -226,14 +211,14 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 		fprintf(modelFile,"%d \n",points[p].z);
 	}
 
-	// put triangle sinformation
-	for (int b = 0; b < triangles.size(); b++)
+	// put quads sinformation
+	for (int b = 0; b < quads.size(); b++)
 	{
 		fprintf(modelFile,"%s","f");
-		for (int t = 0; t < 3; t++)
+		for (int t = 0; t < 4; t++)
 		{
 			fprintf(modelFile,"%c", ' ');
-			fprintf(modelFile,"%d",triangles[b][t]+1);
+			fprintf(modelFile,"%d",quads[b][t]+1);
 		}
 		fprintf(modelFile,"\n");
 	}
