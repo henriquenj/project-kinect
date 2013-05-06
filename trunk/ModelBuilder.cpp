@@ -39,25 +39,44 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 
 	//compute time that the computer took to build the polygons
 	clock_t begin = clock();
-	
-	// must group nearby pixels together
 
-	// call BuildPolygons 
-	BuildPolygon(size,depthBuffer);
 
-	// reserve space
-	points.resize(bufferSize);
+	// array that will store the amount of null pixels at each given point of the depth buffer
+	// this will be need when the algotithm create the faces
+	int* nullPixels = new int[bufferSize];
+	memset(nullPixels,0,bufferSize * sizeof(int));
+
+	// the total amount of null pixels
+	int amountNullPixels = 0;
+
 	for (int b = 0; b < bufferSize; b++)
 	{
+		// check if it's one of the pixels in the dead area (null pixel)
+		if (depthBuffer[b] == 0)
+		{
+			amountNullPixels++;
+			// update nullpixels
+			nullPixels[b] = amountNullPixels;
+			// do not process this
+			continue;
+		}
 		// put points in vector
-		glm::vec3 tVertex;
+		glm::uvec3 tVertex;
 		tVertex.x = b % size.x;
 		tVertex.y = b / size.y;
 		// make the max value being the X size of the buffer
 		tVertex.z = (size.x * depthBuffer[b]) / max;
 		// put on vector
-		points[b] = tVertex;
+		points.push_back(tVertex);
+		nullPixels[b] = amountNullPixels;
 	}
+
+	// must group nearby pixels together
+
+	// call BuildPolygons 
+	BuildPolygon(size,depthBuffer,nullPixels);
+
+	delete nullPixels;
 
 	// finish counting time
 	clock_t end = clock();
@@ -65,7 +84,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	std::cout << std::endl << "Time to precess the points (seconds): " << elapsed_secs << std::endl;
 }
 
-void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
+void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer, int* nullPixels)
 {
 	/* 
 		ok, let's change things a bit, AGAIN
@@ -79,6 +98,9 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 	//iterate through all the pixels
 	for (int currentIndex = 0; currentIndex < size.x * size.y; currentIndex++)
 	{
+
+		// check if it's one of the pixels in the dead area (no reliable values)
+		if (depthBuffer[currentIndex] == 0){continue;} // do not process this
 		int neighboursIndexes[3] = {-1,-1,-1};
 		glm::ivec2 currentPosition;
 
@@ -140,9 +162,9 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 					// hit!
 					neighboursHit++;
 					// first vertex? add the own pixel
-					if (neighboursHit == 1) {tQuad[0] = currentIndex;}
+					if (neighboursHit == 1) {tQuad[0] = currentIndex - nullPixels[currentIndex];} //subtract by null pixels at this index
 					// put neighbor
-					tQuad[neighboursHit] = neighboursIndexes[p];
+					tQuad[neighboursHit] = neighboursIndexes[p] - nullPixels[neighboursIndexes[p]]; //same here
 				}
 			}
 		}

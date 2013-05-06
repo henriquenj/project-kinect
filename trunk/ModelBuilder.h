@@ -30,8 +30,8 @@ private:
 	std::vector<glm::uvec3> points;
 	// vector of quads to hold the connectivity
 	std::vector<glm::uvec4> quads;
-	/* build polygons recursively based on nearby points. Current index referes to the current pixel to be processed, 0 if it's the first. */
-	void BuildPolygon(glm::uvec2 size, short* depthBuffer);
+	/* build polygons based on nearby points. */
+	void BuildPolygon(glm::uvec2 size, short* depthBuffer, int* nullVertex);
 };
 
 
