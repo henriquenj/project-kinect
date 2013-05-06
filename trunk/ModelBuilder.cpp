@@ -80,14 +80,13 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 	for (int currentIndex = 0; currentIndex < size.x * size.y; currentIndex++)
 	{
 		int neighboursIndexes[3] = {-1,-1,-1};
-		int temp_index;
 		glm::ivec2 currentPosition;
 
 		/*
 		table of indexes on neighbours array
 		0 - center right
-		1 - botton center
-		2 - botton right
+		1 - botton right
+		2 - botton center
 		*/
 
 		// get position of the pixel in the matrix
@@ -102,17 +101,17 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 		{
 			neighboursIndexes[0] = (currentPosition.x+1) + (currentPosition.y) * size.x;
 		}
-		// botton center
-		// check if isn't on the last line
-		if (currentPosition.y+1 < size.y)
-		{
-			neighboursIndexes[1] = (currentPosition.x) + (currentPosition.y+1) * size.x;
-		}
 		// botton right
 		// check if isn't on the botton right corner
 		if (currentPosition.y+1 < size.y && currentPosition.x+1 < size.x)
 		{
-			neighboursIndexes[2] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
+			neighboursIndexes[1] = (currentPosition.x+1) + (currentPosition.y+1) * size.x;
+		}
+		// botton center
+		// check if isn't on the last line
+		if (currentPosition.y+1 < size.y)
+		{
+			neighboursIndexes[2] = (currentPosition.x) + (currentPosition.y+1) * size.x;
 		}
 
 		// control how many realible neibhours exist, must be at least 3 to make a quad
@@ -147,7 +146,6 @@ void ModelBuilder::BuildPolygon(glm::uvec2 size,short* depthBuffer)
 				}
 			}
 		}
-
 		//TODO: MAKE THE PROGRAM BUILD TRIANGLES TOO
 		// does this have enough vertex?
 		if (neighboursHit == 3)
@@ -211,7 +209,7 @@ void ModelBuilder::WriteModelOnFile(std::string &filename)
 		fprintf(modelFile,"%d \n",points[p].z);
 	}
 
-	// put quads sinformation
+	// put quads information
 	for (int b = 0; b < quads.size(); b++)
 	{
 		fprintf(modelFile,"%s","f");
