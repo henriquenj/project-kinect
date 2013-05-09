@@ -18,6 +18,7 @@ ModelBuilder* builder = NULL;
 // loaded frames
 glm::uvec2 sizeColor; // color buffer size
 glm::uvec2 sizeDepth; // depth buffer size
+std::string imagePath;
 BYTE* colorBuffer = NULL;
 short* depthBuffer = NULL;
 
@@ -51,7 +52,6 @@ void RenderCallback()
 
 	bProcess->DrawMarkers();
 
-	Sleep(50); // to minimize processor use
 	glutSwapBuffers();
 }
 
@@ -97,14 +97,14 @@ void Menu(int option)
 				colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 				// dump color buffer to a PNG file
 				std::string filepath_str(filepath);
-				AddExtensionWithChecking(filepath_str,std::string("png"));
+				AddExtensionWithChecking(filepath_str,std::string("png"),std::string("png"));
 				SavePng(filepath_str.c_str(),colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 			}
 			filepath = ShowFileDialog(0,DialogSave,".dep files","*.dep*");
 			if (filepath != NULL)
 			{
 				std::string filepath_str(filepath);
-				AddExtensionWithChecking(filepath_str,std::string("dep"));
+				AddExtensionWithChecking(filepath_str,std::string("dep"),std::string("dep"));
 				// dump depth buffer to a file
 				DumpDepthBuffer(depthbuffer,kinect->GetWidthDepth(),kinect->GetHeightDepth(),filepath_str.c_str());
 			}
@@ -125,6 +125,7 @@ void Menu(int option)
 			bool hasAlpha;
 			colorBuffer = LoadPng(filepath,sizeColor,hasAlpha);
 		}
+		imagePath = filepath;
 		// load depth buffer file
 		filepath = ShowFileDialog(0,DialogOpen,".dep files","*.dep*");
 		if (filepath != NULL)
@@ -165,7 +166,7 @@ void Menu(int option)
 			if (filepath != NULL)
 			{
 				std::string path(filepath);
-				builder->WriteModelOnFile(path);
+				builder->WriteModelOnFile(path,imagePath);
 			}
 		}
 		else
