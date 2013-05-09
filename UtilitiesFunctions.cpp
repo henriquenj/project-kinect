@@ -420,7 +420,7 @@ short* ReadDepthBuffer(glm::uvec2 &size,const char* filename)
 	return buffer;
 }
 
-void AddExtensionWithChecking(std::string &filepath, std::string &extension)
+void AddExtensionWithChecking(std::string &filepath, std::string &extension,std::string &newExtension)
 {
 	// check if the user typed the extension
 	std::string currentExtension = filepath.substr(filepath.size() - 3);
@@ -428,6 +428,30 @@ void AddExtensionWithChecking(std::string &filepath, std::string &extension)
 	{
 		// user didn't type the extension, add to string
 		filepath += '.';
-		filepath += extension;
+		filepath += newExtension;
+	}
+	else if (extension.compare(newExtension) != 0)
+	{
+		// remove current one
+		filepath.pop_back();
+		filepath.pop_back();
+		filepath.pop_back();
+
+		filepath += newExtension;
+	}
+}
+
+void RemoveAbsolutePath(std::string &filepath)
+{
+	// remove absolute paths from the name
+	// look for the "/" separator to see if it's a full path (92 in the ascii table)
+	int separatorPosition = filepath.rfind(92);
+	if (separatorPosition != std::string::npos)
+	{
+		// copy only the final part of the absolute path
+		std::string temp;
+		temp = filepath.substr(separatorPosition+1);
+		filepath.clear();
+		filepath = temp;
 	}
 }
