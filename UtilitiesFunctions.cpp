@@ -433,10 +433,7 @@ void AddExtensionWithChecking(std::string &filepath, std::string &extension,std:
 	else if (extension.compare(newExtension) != 0)
 	{
 		// remove current one
-		filepath.pop_back();
-		filepath.pop_back();
-		filepath.pop_back();
-
+		filepath.erase(filepath.size() - extension.size());
 		filepath += newExtension;
 	}
 }
