@@ -161,7 +161,7 @@ void Menu(int option)
 	{
 		if (depthBuffer)
 		{
-			builder->GeneratePoints(depthBuffer,sizeDepth,sizeColor);
+			builder->GeneratePoints(depthBuffer,sizeDepth);
 			const char * filepath = ShowFileDialog(0,DialogSave,"OBJ Files","*.obj");
 			if (filepath != NULL)
 			{
