@@ -21,7 +21,7 @@ public:
 	~ModelBuilder(void);
 
 	// Generate points using the last depth buffer avaiable. WARNING: this will ERASE the previously created model 
-	void GeneratePoints(short *depthBuffer, glm::uvec2 &size, glm::uvec2 &sizeTexture);
+	void GeneratePoints(short *depthBuffer, glm::uvec2 &size);
 	// Write model on a .obj file using last model builded by GeneratePoints.
 	void WriteModelOnFile(std::string &filename,std::string &imagePath);
 	// Get points
@@ -35,7 +35,7 @@ private:
 	// vector of quads to hold the connectivity
 	std::vector<glm::uvec4> quads;
 	/* build polygons based on nearby points. */
-	void BuildPolygon(glm::uvec2 &size, short* depthBuffer, int* nullVertex,glm::uvec2 &sizeTexture);
+	void BuildPolygon(glm::uvec2 &size, short* depthBuffer, int* nullVertex);
 };
 
 

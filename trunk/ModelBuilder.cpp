@@ -12,7 +12,7 @@ ModelBuilder::~ModelBuilder(void)
 }
 
 
-void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size,glm::uvec2 &sizeTexture)
+void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 {
 	//compute time that the computer took to build the polygons
 	clock_t begin = clock();
@@ -75,7 +75,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size,glm::uvec2
 	// must group nearby pixels together
 
 	// call BuildPolygons 
-	BuildPolygon(size,depthBuffer,nullPixels,sizeTexture);
+	BuildPolygon(size,depthBuffer,nullPixels);
 
 	delete nullPixels;
 
@@ -85,7 +85,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size,glm::uvec2
 	std::cout << std::endl << "Time to precess the points (seconds): " << elapsed_secs << std::endl;
 }
 
-void ModelBuilder::BuildPolygon(glm::uvec2 &size,short* depthBuffer, int* nullPixels,glm::uvec2 &sizeTexture)
+void ModelBuilder::BuildPolygon(glm::uvec2 &size,short* depthBuffer, int* nullPixels)
 {
 	/* 
 		ok, let's change things a bit, AGAIN
