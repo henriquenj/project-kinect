@@ -24,18 +24,20 @@ public:
 	void GeneratePoints(short *depthBuffer, glm::uvec2 &size);
 	// Write model on a .obj file using last model builded by GeneratePoints.
 	void WriteModelOnFile(std::string &filename,std::string &imagePath);
-	// Get points
-	//std::vector<glm::uvec3>* points
 
 private:
 	// vector of points
-	std::vector<glm::uvec3> points;
+	std::vector<glm::vec3> points;
 	// vector of texture coordinates
 	std::vector<glm::vec2> texturesCoord;
 	// vector of quads to hold the connectivity
 	std::vector<glm::uvec4> quads;
+	// vecotr of planes
+	std::vector<glm::uvec4> planes;
 	/* build polygons based on nearby points. */
 	void BuildPolygon(glm::uvec2 &size, short* depthBuffer, int* nullVertex);
+	/* build plans based on "Obtaining a best fitting plane through 3D georeferenced data"*/
+	void BuildPlans(glm::uvec2 &size, short* depthBuffer);
 };
 
 
