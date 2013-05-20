@@ -40,7 +40,7 @@ void RenderCallback()
 		glDrawPixels(kinect->GetWidthColor(),kinect->GetHeightColor(),GL_BGRA_EXT,GL_UNSIGNED_BYTE,kinect->GetUnreliableColorBuffer());
 		glDrawPixels(kinect->GetWidthDepth(),kinect->GetHeightDepth(),GL_LUMINANCE,GL_SHORT,kinect->GetUnreliableDepthBuffer());
 	}
-
+	
 	if (colorBuffer != NULL)
 	{
 		glDrawPixels(sizeColor.x,sizeColor.y,GL_RGBA,GL_UNSIGNED_BYTE,colorBuffer);

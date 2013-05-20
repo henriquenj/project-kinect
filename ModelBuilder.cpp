@@ -22,7 +22,8 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	quads.clear();
 	texturesCoord.clear();
 
-	int max = 0,min = 0,bufferSize;
+	int bufferSize;
+	float max = 0,min = 0;
 	bufferSize = size.x * size.y;
 
 	// find max distance and min distance
@@ -62,7 +63,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 			continue;
 		}
 		// put points in vector
-		glm::uvec3 tVertex;
+		glm::vec3 tVertex;
 		tVertex.x = b % size.x;
 		tVertex.y = b / size.y;
 		// make the max value being the X size of the buffer
@@ -74,6 +75,8 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 
 	// must group nearby pixels together
 
+	//call buildPlanes
+	BuildPlans(size,depthBuffer);
 	// call BuildPolygons 
 	BuildPolygon(size,depthBuffer,nullPixels);
 
@@ -189,6 +192,62 @@ void ModelBuilder::BuildPolygon(glm::uvec2 &size,short* depthBuffer, int* nullPi
 	}
 }
 
+void ModelBuilder::BuildPlans(glm::uvec2 &size, short* depthBuffer)
+{
+	/* this implementation is based on the paper "Obtaining a best fitting plane through 3D georeferenced data"
+		by O. Fernández
+	*/
+	
+	// the distance between a given point and the center of mass
+	std::vector<glm::vec3> vectorDistance;
+	int bufferSize = size.x * size.y;
+	// get center of mass
+	glm::vec3 centerMass;
+	// X and Y are easy to compute because it's simply the middle of the image
+	centerMass.x = size.x / 2;
+	centerMass.y = size.y / 2;
+	int totalSum = 0;
+	for(int u = 0; u < points.size(); u++)
+	{
+		totalSum += points[u].z;
+	}
+	// divide by size
+	centerMass.z = totalSum / points.size();
+	// compute distance between center of mass and the rest of the points
+	for(int p = 0; p < points.size(); p++)
+	{
+		glm::vec3 tVectorDistance = points[p] - centerMass;
+		vectorDistance.push_back(tVectorDistance);
+	}
+
+	// now we begin to compute the orientation matrix
+	glm::dmat3 m_orientation(0.0);
+	// now we must sum based on vector distance that we just computed
+	for (int b = 0; b < vectorDistance.size(); b++)
+	{
+		glm::dmat3 t_mOrientation;
+		// first line
+		t_mOrientation[0][0] = glm::exp2(vectorDistance[b].x);
+		t_mOrientation[0][1] = vectorDistance[b].x * vectorDistance[b].y;
+		t_mOrientation[0][2] = vectorDistance[b].x * vectorDistance[b].z;
+		// second line
+		t_mOrientation[1][0] = vectorDistance[b].y * vectorDistance[b].x;
+		t_mOrientation[1][1] = glm::exp2(vectorDistance[b].y);
+		t_mOrientation[1][2] = vectorDistance[b].y * vectorDistance[b].z;
+		// third line
+		t_mOrientation[2][0] = vectorDistance[b].z * vectorDistance[b].x;
+		t_mOrientation[2][1] = vectorDistance[b].z * vectorDistance[b].y;
+		t_mOrientation[2][2] = glm::exp2(vectorDistance[b].z);
+
+		// not sum
+		m_orientation += t_mOrientation;
+
+		//SOLVE PROBLEM WITH OVERFLOW
+	}
+
+	int thisp = 0;
+}		
+
 void ModelBuilder::WriteModelOnFile(std::string &filename,std::string &imagePath)
 {
 
@@ -240,6 +299,22 @@ void ModelBuilder::WriteModelOnFile(std::string &filename,std::string &imagePath
 	// now puts on the file
 	fprintf(modelFile,"%s\n",m_fileName.c_str());
 
+	// put plane geometry if there's one
+	if (!planes.empty())
+	{
+		// put new group
+		fprintf(modelFile,"%s \n","g planesGroup");
+		for (int u = 0; u < planes.size(); u++)
+		{
+			fprintf(modelFile,"%s","v ");
+			fprintf(modelFile,"%d",planes[u].x);
+			fprintf(modelFile,"%c",' ');
+			fprintf(modelFile,"%d",planes[u].y);
+			fprintf(modelFile,"%c",' ');
+			fprintf(modelFile,"%d \n",planes[u].z);
+		}
+	}
+
 	// put a group
 	fprintf(modelFile,"%s \n","g defaultGroup");
 
@@ -247,11 +322,11 @@ void ModelBuilder::WriteModelOnFile(std::string &filename,std::string &imagePath
 	for (int p = 0; p < points.size(); p++)
 	{
 		fprintf(modelFile,"%s","v ");
-		fprintf(modelFile,"%d",points[p].x);
+		fprintf(modelFile,"%f",points[p].x);
 		fprintf(modelFile,"%c",' ');
-		fprintf(modelFile,"%d",points[p].y);
+		fprintf(modelFile,"%f",points[p].y);
 		fprintf(modelFile,"%c",' ');
-		fprintf(modelFile,"%d \n",points[p].z);
+		fprintf(modelFile,"%f \n",points[p].z);
 	}
 
 	//put texture coordinates information
