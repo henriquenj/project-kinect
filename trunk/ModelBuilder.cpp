@@ -227,17 +227,17 @@ void ModelBuilder::BuildPlans(glm::uvec2 &size, short* depthBuffer)
 	{
 		glm::dmat3 t_mOrientation;
 		// first line
-		t_mOrientation[0][0] = glm::exp2(vectorDistance[b].x);
+		t_mOrientation[0][0] = vectorDistance[b].x * vectorDistance[b].x;
 		t_mOrientation[0][1] = vectorDistance[b].x * vectorDistance[b].y;
 		t_mOrientation[0][2] = vectorDistance[b].x * vectorDistance[b].z;
 		// second line
 		t_mOrientation[1][0] = vectorDistance[b].y * vectorDistance[b].x;
-		t_mOrientation[1][1] = glm::exp2(vectorDistance[b].y);
+		t_mOrientation[1][1] = vectorDistance[b].y * vectorDistance[b].y;
 		t_mOrientation[1][2] = vectorDistance[b].y * vectorDistance[b].z;
 		// third line
 		t_mOrientation[2][0] = vectorDistance[b].z * vectorDistance[b].x;
 		t_mOrientation[2][1] = vectorDistance[b].z * vectorDistance[b].y;
-		t_mOrientation[2][2] = glm::exp2(vectorDistance[b].z);
+		t_mOrientation[2][2] = vectorDistance[b].z * vectorDistance[b].z;
 
 		// not sum
 		m_orientation += t_mOrientation;
