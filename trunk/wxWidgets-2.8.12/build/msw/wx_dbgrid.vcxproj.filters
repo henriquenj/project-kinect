@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common Sources">
+      <UniqueIdentifier>{73118b1f-e98e-409c-87c7-38177f3099de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSW Sources">
+      <UniqueIdentifier>{a8143d74-5c6f-4d4e-901e-8e44952e7c2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Setup Headers">
+      <UniqueIdentifier>{f2f7e247-b6d7-4804-b246-db4b2faa8427}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSW Headers">
+      <UniqueIdentifier>{f32917f8-9a4d-4957-afca-c57b14e4f265}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Headers">
+      <UniqueIdentifier>{b23b820f-267a-43cc-afa3-0bbf3f25c96e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\common\dbgrid.cpp">
+      <Filter>Common Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\dummy.cpp">
+      <Filter>Common Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\msw\version.rc">
+      <Filter>MSW Sources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\wx\dbgrid.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\include\wx\msw\setup.h">
+      <Filter>Setup Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\wx\univ\setup.h">
+      <Filter>Setup Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\include\wx\msw\genrcdefs.h">
+      <Filter>MSW Headers</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
