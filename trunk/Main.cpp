@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <gl\glut.h>
 #include "wx\wx.h"
+#include "MainFrame.h"
 
 #include "KinectSensor.h"
 #include "ModelBuilder.h"
@@ -259,10 +260,19 @@ int PreviousMain()
 
 class OGLKinect : public wxApp
 {
+	~OGLKinect()
+	{
+	}
 	bool OnInit()
 	{
+		mainFrame = new MainFrame(_("OGL Kinect"),wxDefaultPosition,wxDefaultSize);
+		mainFrame->Show(true);
+		SetTopWindow(mainFrame);
 		return true;
 	}
+
+private:
+	MainFrame* mainFrame;
 };
 
 IMPLEMENT_APP(OGLKinect)

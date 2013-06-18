@@ -4,6 +4,9 @@
     <Filter Include="Code">
       <UniqueIdentifier>{b6e9d240-53b1-40c0-a5b9-3e86b0705de0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Interface">
+      <UniqueIdentifier>{2acde8e1-83d4-45b7-ab38-087a7e2aec09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -21,6 +24,9 @@
     <ClCompile Include="BufferProcess.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="MainFrame.cpp">
+      <Filter>Code\Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h">
@@ -34,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="BufferProcess.h">
       <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrame.h">
+      <Filter>Code\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
