@@ -87,12 +87,14 @@
     <ClCompile Include="BufferProcess.cpp" />
     <ClCompile Include="KinectSensor.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="ModelBuilder.cpp" />
     <ClCompile Include="UtilitiesFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferProcess.h" />
     <ClInclude Include="KinectSensor.h" />
+    <ClInclude Include="MainFrame.h" />
     <ClInclude Include="ModelBuilder.h" />
     <ClInclude Include="UtilitiesFunctions.h" />
   </ItemGroup>
