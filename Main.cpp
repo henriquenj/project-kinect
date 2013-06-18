@@ -1,7 +1,8 @@
-/* Simple program that uses the NUI API to render images from Kinect sensor using OpenGL and Glut */
+/* Simple program that uses the NUI API to render images from Kinect sensor using OpenGL and WxWidgets */
 
 #include <Windows.h>
 #include <gl\glut.h>
+#include "wx\wx.h"
 
 #include "KinectSensor.h"
 #include "ModelBuilder.h"
@@ -227,7 +228,7 @@ void IdleCallback()
 {
 	glutPostRedisplay();
 }
-int main()
+int PreviousMain()
 {
 
 	// setup this for pseudo-random number generatiom
@@ -255,3 +256,13 @@ int main()
 
 	return 0;
 }
+
+class OGLKinect : public wxApp
+{
+	bool OnInit()
+	{
+		return true;
+	}
+};
+
+IMPLEMENT_APP(OGLKinect)
