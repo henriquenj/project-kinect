@@ -1,10 +1,12 @@
-/* Simple program that uses the NUI API to render images from Kinect sensor using OpenGL and WxWidgets */
+/* Simple program that uses the NUI API to render images from Kinect sensor using OpenGL and wxWidgets */
 
 #include <Windows.h>
-#include <gl\glut.h>
 #include "wx\wx.h"
 #include "MainFrame.h"
+#include "svnrev.h" // generated at pre-build event by SubWCRev
 
+// deprecated includes (for now)
+#include <gl\glut.h>
 #include "KinectSensor.h"
 #include "ModelBuilder.h"
 #include "BufferProcess.h"
@@ -265,9 +267,16 @@ class OGLKinect : public wxApp
 	}
 	bool OnInit()
 	{
-		mainFrame = new MainFrame(_("OGL Kinect"),wxDefaultPosition,wxDefaultSize);
+
+		// build string to be the name of the frame
+		wxString mainFrameTitle = _(APPNAME);
+		mainFrameTitle += _(" - Revision: ") + wxString::Format(wxT("%i"),SVN_REV);
+		// create main frame of the application
+		mainFrame = new MainFrame(mainFrameTitle,
+			wxDefaultPosition,wxDefaultSize);
 		mainFrame->Show(true);
 		SetTopWindow(mainFrame);
+		SetAppName(_(APPNAME));
 		return true;
 	}
 
