@@ -1,9 +1,5 @@
-/* Simple program that uses the NUI API to render images from Kinect sensor using OpenGL and wxWidgets */
+#include "Main.h"
 
-#include <Windows.h>
-#include "wx\wx.h"
-#include "MainFrame.h"
-#include "svnrev.h" // generated at pre-build event by SubWCRev
 
 // deprecated includes (for now)
 #include <gl\glut.h>
@@ -11,9 +7,6 @@
 #include "ModelBuilder.h"
 #include "BufferProcess.h"
 #include "UtilitiesFunctions.h"
-
-#define WINDOWWIDTH 1280
-#define WINDOWHEIGHT 720
 
 KinectSensor* kinect = NULL;
 BufferProcess* bProcess = NULL;
