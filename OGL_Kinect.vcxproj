@@ -91,6 +91,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AboutDialog.cpp" />
     <ClCompile Include="BufferProcess.cpp" />
     <ClCompile Include="KinectSensor.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -99,8 +100,10 @@
     <ClCompile Include="UtilitiesFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AboutDialog.h" />
     <ClInclude Include="BufferProcess.h" />
     <ClInclude Include="KinectSensor.h" />
+    <ClInclude Include="Main.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="ModelBuilder.h" />
     <ClInclude Include="UtilitiesFunctions.h" />

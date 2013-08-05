@@ -50,5 +50,9 @@ bool MainFrame::OnInit()
 
 void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
-	 //TODO: complete this
+	 // create about dialog
+	AboutDialog a_dialog(this);
+
+	a_dialog.Show();
+
 }

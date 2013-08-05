@@ -27,6 +27,9 @@
     <ClCompile Include="MainFrame.cpp">
       <Filter>Code\Interface</Filter>
     </ClCompile>
+    <ClCompile Include="AboutDialog.cpp">
+      <Filter>Code\Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h">
@@ -43,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="MainFrame.h">
       <Filter>Code\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutDialog.h">
+      <Filter>Code\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,17 +1,12 @@
 #ifndef __MAINFRAME_CLASS__
 #define __MAINFRAME_CLASS__
 
-#define APPNAME "Kinect3DBuilder"
+#include "Main.h"
 #include "wx\wx.h"
+#include "AboutDialog.h"
 
-// to control the main frame user interface
-enum IDsMainFrame
-{
-    // menu items
-    K_Quit = wxID_EXIT,
-    K_About = wxID_ABOUT
-};
 
+// main frame of the application
 class MainFrame : public wxFrame
 {
 public:
