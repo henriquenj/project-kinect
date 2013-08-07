@@ -9,9 +9,9 @@ class AboutDialog : public wxDialog
 public:
 		AboutDialog(wxWindow *parent,
                         wxWindowID id = wxID_ANY,
-						const wxString &title = _("Kinect3DBuilder"), /*TODO: put APPNAME macro here */
+						const wxString &title = wxString::FromUTF8(APPNAME),
                         const wxPoint& pos = wxDefaultPosition,
-                        const wxSize& size = wxDefaultSize,
+						const wxSize& size = wxDefaultSize,
                         long style = wxDEFAULT_DIALOG_STYLE);
 
 };

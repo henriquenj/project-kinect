@@ -51,8 +51,8 @@ bool MainFrame::OnInit()
 void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
 	 // create about dialog
-	AboutDialog a_dialog(this);
+	AboutDialog a_dialog(this,wxID_ANY,wxString::FromUTF8(APPNAME),wxDefaultPosition,wxSize(340,200));
 
-	a_dialog.Show();
+	a_dialog.ShowModal();
 
 }
