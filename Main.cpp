@@ -263,7 +263,8 @@ class OGLKinect : public wxApp
 
 		// build string to be the name of the frame
 		wxString mainFrameTitle = _(APPNAME);
-		mainFrameTitle += _(" - Revision: ") + wxString::Format(wxT("%i"),SVN_REV);
+		mainFrameTitle += _(" - Revision: ");
+		mainFrameTitle += _(SVN_REV);
 		// create main frame of the application
 		mainFrame = new MainFrame(mainFrameTitle,
 			wxDefaultPosition,wxDefaultSize);
