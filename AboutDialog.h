@@ -2,6 +2,7 @@
 #define __ABOUT_DIALOG__
 
 #include "wx\wx.h"
+#include "wx\hyperlink.h"
 #include "Main.h"
 
 class AboutDialog : public wxDialog

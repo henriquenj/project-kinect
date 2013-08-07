@@ -4,6 +4,7 @@
 
 
 #define APPNAME "Kinect3DBuilder"
+#define APPSITE "http://code.google.com/p/project-kinect/"
 
 #define WINDOWWIDTH 1280
 #define WINDOWHEIGHT 720
