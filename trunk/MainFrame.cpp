@@ -9,34 +9,28 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	wxMenu* helpMenu = new wxMenu;
 	this->Connect( K_About,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OnAbout));
 	helpMenu->Append(K_About,_("&About\tF1"),_("About this program"));
+	// file menu
+	wxMenu* fileMenu = new wxMenu;
+	this->Connect(K_Quit,wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(MainFrame::OnQuit));
+	fileMenu->Append(K_Quit,_("&Quit"),_("Quit the program"));
 
 	// create top menu bar
 	wxMenuBar* menuBar = new wxMenuBar();
+	menuBar->Append(fileMenu,_("File"));
 	menuBar->Append(helpMenu,_("Help"));
-
+	
 	// put the menubar on this frame
 	this->SetMenuBar(menuBar);
 
 	SetStatusText(_("Kinect3DBuilder ready!"));
 	panel = new wxPanel(this);
-	
-	// buttons
-	wxButton* load_button = new wxButton(panel,wxID_OPEN,_("Load Image from File"),wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT,
-										wxDefaultValidator,_("Load previously saved PNG image along with the depth file"));
-	wxButton* connectk_button = new wxButton(panel,wxID_ANY,_("Start Kinect Device"),wxDefaultPosition,wxDefaultSize,
-											wxBU_EXACTFIT,wxDefaultValidator);
-	
-	// put them on a sizer
-	wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(load_button,2);
-	sizer->Add(connectk_button,2);
 
-	panel->SetSizer(sizer);
-	//SetBackgroundColour(wxColour(255,255,255));
-	
-	// connect buttons to functionality
-	//load_button->Connect(
+	// create canvas
+	canvas = new wxGLCanvas(panel,wxID_ANY,wxDefaultPosition);
 
+	// set minimal size
+	this->SetMinSize(wxSize(600,450));
+	
 }
 
 MainFrame::~MainFrame()
@@ -55,4 +49,9 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 
 	a_dialog.ShowModal();
 
+}
+
+void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
+{
+	this->Close();
 }

@@ -255,7 +255,7 @@ int PreviousMain()
 
 class OGLKinect : public wxApp
 {
-	~OGLKinect()
+	virtual ~OGLKinect()
 	{
 	}
 	bool OnInit()
@@ -267,7 +267,7 @@ class OGLKinect : public wxApp
 		mainFrameTitle += _(SVN_REV);
 		// create main frame of the application
 		mainFrame = new MainFrame(mainFrameTitle,
-			wxDefaultPosition,wxDefaultSize);
+			wxDefaultPosition,wxSize(900,700));
 		mainFrame->Show(true);
 		SetTopWindow(mainFrame);
 		SetAppName(_(APPNAME));
