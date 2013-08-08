@@ -7,7 +7,7 @@
 #define APPSITE "http://code.google.com/p/project-kinect/"
 
 #define WINDOWWIDTH 1280
-#define WINDOWHEIGHT 720
+#define WINDOWHEIGHT 960
 
 // commom includes and general defines
 #include <Windows.h>
