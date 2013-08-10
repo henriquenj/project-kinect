@@ -3,7 +3,7 @@
 
 #include "Main.h"
 #include "wx\wx.h"
-#include "wx\glcanvas.h"
+#include "GLViewport.h"
 #include "AboutDialog.h"
 
 
@@ -23,8 +23,8 @@ public:
 private:
 	// panel when everything will be put
 	wxPanel* panel;
-	// glcanvas for render OpenGL graphics on a window
-	wxGLCanvas* canvas;
+	// viewport to draw the graphics
+	GLViewport* viewport;
 };
 
 #endif // __MAINFRAME_CLASS__

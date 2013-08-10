@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="AboutDialog.cpp" />
     <ClCompile Include="BufferProcess.cpp" />
+    <ClCompile Include="GLViewport.cpp" />
     <ClCompile Include="KinectSensor.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainFrame.cpp" />
@@ -102,6 +103,7 @@
   <ItemGroup>
     <ClInclude Include="AboutDialog.h" />
     <ClInclude Include="BufferProcess.h" />
+    <ClInclude Include="GLViewport.h" />
     <ClInclude Include="KinectSensor.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="MainFrame.h" />

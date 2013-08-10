@@ -30,6 +30,9 @@
     <ClCompile Include="AboutDialog.cpp">
       <Filter>Code\Interface</Filter>
     </ClCompile>
+    <ClCompile Include="GLViewport.cpp">
+      <Filter>Code\Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="Main.h">
       <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="GLViewport.h">
+      <Filter>Code\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
