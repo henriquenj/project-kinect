@@ -28,6 +28,9 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	// create viewport
 	viewport = new GLViewport(panel,wxID_ANY);
 
+	// setloop mode
+	viewport->ChangeLoopMode(true);
+
 	// set minimal size
 	this->SetMinSize(wxSize(600,450));
 	
