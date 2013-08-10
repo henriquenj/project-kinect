@@ -25,8 +25,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	SetStatusText(_("Kinect3DBuilder ready!"));
 	panel = new wxPanel(this);
 
-	// create canvas
-	canvas = new wxGLCanvas(panel,wxID_ANY,wxDefaultPosition);
+	// create viewport
+	viewport = new GLViewport(panel,wxID_ANY);
 
 	// set minimal size
 	this->SetMinSize(wxSize(600,450));
