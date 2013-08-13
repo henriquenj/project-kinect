@@ -3,13 +3,14 @@
 /* Program that uses the NUI API to render images from Kinect sensor using OpenGL and wxWidgets */
 
 
+// commom includes and general defines
+
 #define APPNAME "Kinect3DBuilder"
 #define APPSITE "http://code.google.com/p/project-kinect/"
 
 #define WINDOWWIDTH 1280
 #define WINDOWHEIGHT 960
 
-// commom includes and general defines
 #include <Windows.h>
 #include "wx\wx.h"
 #include "MainFrame.h"

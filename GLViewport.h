@@ -3,6 +3,9 @@
 
 #include "wx\wx.h"
 #include "wx\glcanvas.h"
+#include "KinectSensor.h"
+#include "glm\glm.hpp"
+#include "UtilitiesFunctions.h"
 
 
 class RenderTimer;
@@ -31,6 +34,14 @@ private:
 	wxGLContext* m_context;
 	// our timer
 	RenderTimer* timer;
+	// instance of kinect sensor, default is NULL (no device connected)
+	KinectSensor* kinect;
+
+	// loaded frames
+	glm::uvec2 sizeColor; // color buffer size
+	glm::uvec2 sizeDepth; // depth buffer size
+	BYTE* colorBuffer;
+	short* depthBuffer;
 };
 
 

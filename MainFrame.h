@@ -5,6 +5,7 @@
 #include "wx\wx.h"
 #include "GLViewport.h"
 #include "AboutDialog.h"
+#include "AppConfig.h"
 
 
 // main frame of the application
