@@ -23,20 +23,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 	this->SetMenuBar(menuBar);
 
 	SetStatusText(_("Kinect3DBuilder ready!"));
-	panel = new wxPanel(this);
-
-	// create viewport
-	viewport = new GLViewport(panel,wxID_ANY,wxDefaultPosition,wxSize(WINDOWWIDTH,WINDOWHEIGHT));
-
-	// setloop mode
-	viewport->ChangeLoopMode(false);
-
-	/*
-	TEMPORARY STUFF
-	*/
-	AppConfig::SetKinectConnected(false);
-
-	// temporary stuff ends here
+	panel = new PanelMainFrame(this,size);
 
 	// set minimal size
 	this->SetMinSize(wxSize(600,450));
@@ -64,4 +51,45 @@ void MainFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 void MainFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 {
 	this->Close();
+}
+
+
+
+//PAINEL CLASS GOES HERE
+
+PanelMainFrame::PanelMainFrame(wxWindow* parent,wxSize size) 
+	:wxPanel(parent,wxID_ANY,wxDefaultPosition,size)
+{
+	viewport = NULL;
+	this->Connect(wxID_ANY,wxEVT_SIZE,wxSizeEventHandler(PanelMainFrame::OnSize));
+
+	// this window size
+	wxSize frameSize = this->GetSize();
+	// create viewport
+	viewport = new GLViewport(this,wxID_ANY,wxDefaultPosition,wxSize(735,515));
+
+	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+	
+	//sizer->Add(viewport);
+	this->SetSizer(sizer);
+
+	// setloop mode
+	viewport->ChangeLoopMode(false);
+
+	/*
+	TEMPORARY STUFF
+	*/
+	AppConfig::SetKinectConnected(false);
+
+	// temporary stuff ends here
+}
+
+void PanelMainFrame::OnSize(wxSizeEvent& event)
+{
+	// we need to resize the viewport
+	wxPanel::OnSize(event);
+	if (viewport != NULL)
+	{
+		viewport->SetSize(event.GetSize().x/1.2,event.GetSize().y/1.2);
+	}
 }

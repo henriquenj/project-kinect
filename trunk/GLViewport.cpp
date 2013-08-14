@@ -7,13 +7,14 @@ GLViewport::GLViewport(wxWindow *parent, wxWindowID id,const wxPoint& pos, const
 	// create context
 	m_context = new wxGLContext(this);
 	this->Connect(wxID_ANY,wxEVT_PAINT,wxPaintEventHandler(GLViewport::OnPaint));
+	this->Connect(wxID_ANY,wxEVT_SIZE,wxSizeEventHandler(GLViewport::OnSize));
 
 	// we can assume NO_LOOP just checkin if this is null
 	timer = NULL;
 
 	// assuming no Kinect device connected
 	kinect = NULL;
-
+	
 	colorBuffer = NULL;
 	depthBuffer = NULL;
 
@@ -55,6 +56,11 @@ GLViewport::~GLViewport(void)
 		timer->Stop();
 		delete timer;
 	}
+}
+
+void GLViewport::OnSize(wxSizeEvent &event)
+{
+	//TODO: PROGRAM THIS
 }
 
 void GLViewport::OnPaint(wxPaintEvent& WXUNUSED(event))
