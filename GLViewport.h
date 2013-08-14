@@ -19,11 +19,12 @@ public:
 		const wxSize& size = wxDefaultSize);
 
 	virtual ~GLViewport();
-
-
+	
+	// callback functions
 	// render function
 	void OnPaint(wxPaintEvent &event);
-	
+	// called each time someone resize the window
+	void OnSize(wxSizeEvent &event);
 	/* change loop mode: true for looping and false for non-loopig
 		the default is FALSE
 	*/
@@ -43,8 +44,6 @@ private:
 	BYTE* colorBuffer;
 	short* depthBuffer;
 };
-
-
 
 /*RenderTimer class implements the timer which will control the render loop */
 class RenderTimer : public wxTimer
