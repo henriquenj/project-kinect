@@ -3,6 +3,7 @@
 
 #include "wx\wx.h"
 #include "wx\glcanvas.h"
+#include "wx\wfstream.h"
 #include "KinectSensor.h"
 #include "glm\glm.hpp"
 #include "UtilitiesFunctions.h"
@@ -10,15 +11,15 @@
 
 class RenderTimer;
 
-/* GLViewport implements the glcanvas interface provided by wxWidgets */
-class GLViewport : public wxGLCanvas
+/* MainPanel implements the panel interface that'll control the loop */
+class MainPanel : public wxPanel
 {
 public:
-	GLViewport(wxWindow *parent, wxWindowID id = wxID_ANY,
+	MainPanel(wxWindow *parent, wxWindowID id = wxID_ANY,
 		const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxDefaultSize);
 
-	virtual ~GLViewport();
+	virtual ~MainPanel();
 	
 	// callback functions
 	// render function
@@ -31,13 +32,10 @@ public:
 	void ChangeLoopMode(bool loopMode);
 
 private:
-	// context for OpenGL commands
-	wxGLContext* m_context;
 	// our timer
 	RenderTimer* timer;
 	// instance of kinect sensor, default is NULL (no device connected)
 	KinectSensor* kinect;
-
 	// loaded frames
 	glm::uvec2 sizeColor; // color buffer size
 	glm::uvec2 sizeDepth; // depth buffer size
@@ -49,13 +47,13 @@ private:
 class RenderTimer : public wxTimer
 {
 public:
-	RenderTimer(GLViewport* viewport);
+	RenderTimer(MainPanel* viewport);
 	//start the timer with interval of 10 miliseconds
 	void Start();
 	// functiona callback to becalled upon need to redraw
 	void Notify();
 private:
-	GLViewport* viewport;
+	MainPanel* viewport;
 };
 
 

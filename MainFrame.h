@@ -3,11 +3,9 @@
 
 #include "Main.h"
 #include "wx\wx.h"
-#include "GLViewport.h"
+#include "MainPanel.h"
 #include "AboutDialog.h"
 #include "AppConfig.h"
-
-class PanelMainFrame;
 
 // main frame of the application
 class MainFrame : public wxFrame
@@ -24,22 +22,7 @@ public:
 
 private:
 	// panel when everything will be put
-	PanelMainFrame* panel;
-};
-
-
-// class that represents the panel inside the main frame of the application
-class PanelMainFrame : public wxPanel
-{
-public:
-	PanelMainFrame(wxWindow* parent,wxSize size);
-
-	// callback function to deal with resize events
-	void OnSize(wxSizeEvent& event);
-	
-private:
-	// viewport to draw the graphics
-	GLViewport* viewport;
+	MainPanel* panel;
 };
 
 #endif // __MAINFRAME_CLASS__

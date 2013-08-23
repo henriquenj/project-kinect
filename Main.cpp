@@ -261,6 +261,11 @@ class OGLKinect : public wxApp
 	bool OnInit()
 	{
 
+		wxInitAllImageHandlers(); // for png suppor
+		wxImageHandler* pngHandler = new wxPNGHandler();
+		wxImage::AddHandler(pngHandler);
+
+
 		// build string to be the name of the frame
 		wxString mainFrameTitle = _(APPNAME);
 		mainFrameTitle += _(" - Revision: ");
