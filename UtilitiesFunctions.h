@@ -11,7 +11,6 @@
 #include <fstream>
 #include <setjmp.h>
 #include "glm\glm.hpp"
-#include "png.h"
 
 // File Dialog Types:
 enum FileDialogType { DialogOpen, DialogSave };
