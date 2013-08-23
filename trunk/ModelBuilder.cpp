@@ -1,6 +1,5 @@
 #include "ModelBuilder.h"
 
-
 ModelBuilder::ModelBuilder()
 {
 	

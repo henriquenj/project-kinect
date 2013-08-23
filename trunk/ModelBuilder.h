@@ -9,6 +9,7 @@
 #include "glm\glm.hpp"
 #include "KinectSensor.h"
 #include "UtilitiesFunctions.h"
+#include <time.h>
 
 // max difference allowed by the alogorithm
 #define MAXDIFFERENCE 500
