@@ -30,11 +30,11 @@
     <ClCompile Include="AboutDialog.cpp">
       <Filter>Code\Interface</Filter>
     </ClCompile>
-    <ClCompile Include="GLViewport.cpp">
-      <Filter>Code\Interface</Filter>
-    </ClCompile>
     <ClCompile Include="AppConfig.cpp">
       <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="MainPanel.cpp">
+      <Filter>Code\Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,11 +59,11 @@
     <ClInclude Include="Main.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="GLViewport.h">
-      <Filter>Code\Interface</Filter>
-    </ClInclude>
     <ClInclude Include="AppConfig.h">
       <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="MainPanel.h">
+      <Filter>Code\Interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
