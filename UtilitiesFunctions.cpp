@@ -345,9 +345,8 @@ void BGRAtoRGBA(BYTE *buffer, int x, int y)
 	}
 }
 
-BYTE* InvertLines(BYTE *buffer,int width, int height)
+BYTE* InvertLines(BYTE *buffer,int width, int height,int bpc)
 {
-	int bpc = 4;
 	int lineSize = width * bpc;
 	BYTE* newBuffer = (BYTE*)malloc(sizeof(BYTE) * width * height * bpc);
 	// swap lines only

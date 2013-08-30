@@ -1,5 +1,5 @@
-#ifndef __GLVIEWPORT_CLASS__
-#define __GLVIEWPORT_CLASS__
+#ifndef __MAINPANEL_CLASS__
+#define __MAINPANEL_CLASS__
 
 #include "wx\wx.h"
 #include "wx\glcanvas.h"
@@ -20,16 +20,19 @@ public:
 		const wxSize& size = wxDefaultSize);
 
 	virtual ~MainPanel();
+
+	/* change loop mode: true for looping and false for non-loopig
+		the default is FALSE*/
+	void ChangeLoopMode(bool loopMode);
 	
 	// callback functions
 	// render function
 	void OnPaint(wxPaintEvent &event);
 	// called each time someone resize the window
 	void OnSize(wxSizeEvent &event);
-	/* change loop mode: true for looping and false for non-loopig
-		the default is FALSE
-	*/
-	void ChangeLoopMode(bool loopMode);
+	// event functions
+	// turn of depth buffer drawning
+	void OnShowDepthBuffer(wxCommandEvent &event);
 
 private:
 	// our timer
@@ -41,6 +44,11 @@ private:
 	glm::uvec2 sizeDepth; // depth buffer size
 	BYTE* colorBuffer;
 	short* depthBuffer;
+
+	// static bitmap will render the loaded image on the screen
+	wxStaticBitmap* rgbBitmap;
+	wxStaticBitmap* depthBitmap;
+
 };
 
 /*RenderTimer class implements the timer which will control the render loop */
@@ -58,4 +66,4 @@ private:
 
 
 
-#endif //__GLVIEWPORT_CLASS__
+#endif //__MAINPANEL_CLASS__

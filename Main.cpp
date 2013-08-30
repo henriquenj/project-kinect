@@ -91,7 +91,7 @@ void Menu(int option)
 				// swap channel
 				BGRAtoRGBA(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
 				//invert image
-				colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor());
+				colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor(),4);
 				// dump color buffer to a PNG file
 				std::string filepath_str(filepath);
 				AddExtensionWithChecking(filepath_str,std::string("png"),std::string("png"));

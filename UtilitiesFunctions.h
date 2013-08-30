@@ -54,7 +54,7 @@ bool SavePng(const char *savefile, BYTE* data_in, int w, int h);
 /*Swap values between two channels*/
 void BGRAtoRGBA(BYTE *buffer,int x, int y);
 
-BYTE* InvertLines(BYTE *buffer,int width, int height);
+BYTE* InvertLines(BYTE *buffer,int width, int height,int bpc);
 
 /*Dump the depth buffer onto a TXT file */
 void DumpDepthBuffer(short *buffer, int width, int height, const char* filename);
