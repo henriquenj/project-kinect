@@ -15,12 +15,24 @@ public:
 	{
 		kinectConnected = _kinectConnected;
 	}
+	// return TRUE if the program is showing a loaded image from a file, FALSE othereise
+	static inline const bool GetLoadedImage()
+	{
+		return loadedImage;
+	}
+	// set option if the program is showing a loadead image
+	static inline void SetLoadedImageOption(const bool _loadedImage)
+	{
+		loadedImage = _loadedImage;
+	}
 	~AppConfig(void);
 
 private:
 	AppConfig(void);
 	// kinnect connected option, program init in FALSE
 	static bool kinectConnected;
+	// true if there's a loaded image on the program
+	static bool loadedImage;
 };
 
 

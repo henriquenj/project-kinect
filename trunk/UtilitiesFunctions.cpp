@@ -453,3 +453,18 @@ void RemoveAbsolutePath(std::string &filepath)
 		filepath = temp;
 	}
 }
+
+int FindMaxValue(short* buffer, int size)
+{
+	// find highest
+	int highestPoint = 0;
+	for (int a = 0; a < size;a++)
+	{
+		if (buffer[a] > highestPoint)
+		{
+			highestPoint = buffer[a];
+		}
+	}
+
+	return highestPoint;
+}
