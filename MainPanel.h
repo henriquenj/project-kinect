@@ -33,6 +33,8 @@ public:
 	// event functions
 	// turn of depth buffer drawning
 	void OnShowDepthBuffer(wxCommandEvent &event);
+	// called when load button is pressed
+	void OnLoadImageButton(wxCommandEvent &event);
 
 private:
 	// our timer
@@ -48,6 +50,10 @@ private:
 	// static bitmap will render the loaded image on the screen
 	wxStaticBitmap* rgbBitmap;
 	wxStaticBitmap* depthBitmap;
+
+	// buttons of the interface
+	wxButton* loadImageButton;
+	wxCheckBox* showDepthButton;
 
 };
 

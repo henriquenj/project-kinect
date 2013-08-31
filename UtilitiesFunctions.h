@@ -70,4 +70,6 @@ void AddExtensionWithChecking(std::string &filepath, std::string &extension,std:
 /*Remove absolute path from a string, returning only the file name*/
 void RemoveAbsolutePath(std::string &filepath);
 
+/*Find maximum value inside a buffer*/
+int FindMaxValue(short* buffer, int size);
 #endif // __UTILITIES_FUNCIONS_HEADER__
