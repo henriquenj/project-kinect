@@ -25,7 +25,10 @@ enum IDsMenu
     K_About = wxID_ABOUT,
 	// interface options
 	K_LoadImage = wxID_HIGHEST+1, // load image button
-	K_ShowDepth // show or not depth buffer radio button
+	K_ShowDepth, // show or not depth buffer radio button
+	K_GenerateModel, // generate model based on a loaded image
+	K_ConnectKinect //change the program state to render input from Kinect
+
 };
 
 

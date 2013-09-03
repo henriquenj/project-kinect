@@ -31,9 +31,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
 	SetStatusText(_("Kinect3DBuilder ready!"));
 	panel = new MainPanel(this);
+	
 
-	// set minimal size
-	this->SetMinSize(wxSize(600,450));
+	// set size
+	this->SetSize(wxSize(920,570));
 	
 }
 

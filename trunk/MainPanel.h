@@ -7,6 +7,7 @@
 #include "KinectSensor.h"
 #include "glm\glm.hpp"
 #include "UtilitiesFunctions.h"
+#include "ModelBuilder.h"
 
 
 class RenderTimer;
@@ -35,6 +36,10 @@ public:
 	void OnShowDepthBuffer(wxCommandEvent &event);
 	// called when load button is pressed
 	void OnLoadImageButton(wxCommandEvent &event);
+	// called to generate model
+	void OnGenerateModel(wxCommandEvent &event);
+	// called to change loop mode and transmit input from kinect
+	void OnConnectKinect(wxCommandEvent &event);
 
 private:
 	// our timer
@@ -46,6 +51,7 @@ private:
 	glm::uvec2 sizeDepth; // depth buffer size
 	BYTE* colorBuffer;
 	short* depthBuffer;
+	wxString loadedImagePath; // the path of currently loaded picture
 
 	// static bitmap will render the loaded image on the screen
 	wxStaticBitmap* rgbBitmap;
@@ -54,6 +60,8 @@ private:
 	// buttons of the interface
 	wxButton* loadImageButton;
 	wxCheckBox* showDepthButton;
+	wxButton* generateModel;
+	wxButton* connectKinect;
 
 };
 
