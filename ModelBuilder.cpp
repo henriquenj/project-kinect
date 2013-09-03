@@ -75,7 +75,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	// must group nearby pixels together
 
 	//call buildPlanes
-	BuildPlans(size,depthBuffer);
+	//BuildPlans(size,depthBuffer);
 	// call BuildPolygons 
 	BuildPolygon(size,depthBuffer,nullPixels);
 
@@ -84,7 +84,7 @@ void ModelBuilder::GeneratePoints(short *depthBuffer,glm::uvec2 &size)
 	// finish counting time
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	std::cout << std::endl << "Time to precess the points (seconds): " << elapsed_secs << std::endl;
+	//std::cout << std::endl << "Time to precess the points (seconds): " << elapsed_secs << std::endl;
 }
 
 void ModelBuilder::BuildPolygon(glm::uvec2 &size,short* depthBuffer, int* nullPixels)
@@ -375,5 +375,5 @@ void ModelBuilder::WriteModelOnFile(std::string &filename,std::string &imagePath
 	// finish counting time
 	clock_t end = clock();
 	double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-	std::cout << std::endl << "Time to save model on file (seconds): " << elapsed_secs << std::endl;
+	//std::cout << std::endl << "Time to save model on file (seconds): " << elapsed_secs << std::endl;
 }

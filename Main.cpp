@@ -273,6 +273,8 @@ class OGLKinect : public wxApp
 		// create main frame of the application
 		mainFrame = new MainFrame(mainFrameTitle,
 			wxDefaultPosition,wxSize(900,700));
+		// this will prevent resizing
+		mainFrame->SetWindowStyle(wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxRESIZE_BOX | wxMAXIMIZE_BOX));
 		mainFrame->Show(true);
 		SetTopWindow(mainFrame);
 		SetAppName(_(APPNAME));
