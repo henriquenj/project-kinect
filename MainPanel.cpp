@@ -5,15 +5,11 @@ MainPanel::MainPanel(wxWindow *parent, wxWindowID id,const wxPoint& pos, const w
 		:wxPanel(parent,id,pos,size)
 {
 	// connect events
-	this->Connect(wxID_ANY,wxEVT_PAINT,wxPaintEventHandler(MainPanel::OnPaint));
 	this->Connect(wxID_ANY,wxEVT_SIZE,wxSizeEventHandler(MainPanel::OnSize));
 	this->Connect(K_ShowDepth,wxEVT_COMMAND_CHECKBOX_CLICKED,wxCommandEventHandler(MainPanel::OnShowDepthBuffer));
 	this->Connect(K_LoadImage,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnLoadImageButton));
 	this->Connect(K_GenerateModel,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnGenerateModel));
 	this->Connect(K_ConnectKinect,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnConnectKinect));
-
-	// we can assume NO_LOOP just checkin if this is null
-	timer = NULL;
 
 	// assuming no Kinect device connected
 	kinect = NULL;
@@ -22,19 +18,22 @@ MainPanel::MainPanel(wxWindow *parent, wxWindowID id,const wxPoint& pos, const w
 	colorBuffer = NULL;
 	depthBuffer = NULL;
 
+	// create render panel
+	renderPanel = new RenderPanel(this,wxID_ANY,wxPoint(0,0),wxSize(640,480));
+
 	// create static images to be filled later
-	rgbBitmap = new wxStaticBitmap(this,wxID_ANY,wxBitmap(wxNullBitmap));
-	depthBitmap = new wxStaticBitmap(this,wxID_ANY,wxBitmap(wxNullBitmap));
-	depthBitmap->Hide();
+	renderPanel->rgbBitmap = new wxStaticBitmap(renderPanel,wxID_ANY,wxBitmap(wxNullBitmap));
+	renderPanel->depthBitmap = new wxStaticBitmap(renderPanel,wxID_ANY,wxBitmap(wxNullBitmap));
+	renderPanel->depthBitmap->Hide();
 
 
 	// load image interface area 
 	/* Add button */
 	loadImageButton = new wxButton(this,K_LoadImage,_("Load Saved Kinect Image"),wxPoint(660,20));
-	generateModel = new wxButton(this,K_GenerateModel,_("Generate Model"),wxPoint(660,90));
+	generateModel = new wxButton(this,K_GenerateModel,_("Generate Model"),wxPoint(660,60));
 	generateModel->Disable();
 	// add static box to load image interface portion
-	wxStaticBox* loadImageBox = new wxStaticBox(this,wxID_ANY,_("Work with previously saved images"),wxPoint(650,0),wxSize(250,130));
+	wxStaticBox* loadImageBox = new wxStaticBox(this,wxID_ANY,_("Work with previously saved images"),wxPoint(650,0),wxSize(250,100));
 
 	// work with kinect area
 	/* Add buttons */
@@ -53,11 +52,6 @@ MainPanel::MainPanel(wxWindow *parent, wxWindowID id,const wxPoint& pos, const w
 
 MainPanel::~MainPanel(void)
 {
-	if (timer != NULL)
-	{
-		timer->Stop();
-		delete timer;
-	}
 }
 
 void MainPanel::OnSize(wxSizeEvent &event)
@@ -65,36 +59,24 @@ void MainPanel::OnSize(wxSizeEvent &event)
 	
 }
 
-void MainPanel::OnPaint(wxPaintEvent& WXUNUSED(event))
+void MainPanel::OnShowDepthBuffer (wxCommandEvent &event)
 {
-	// somehow this solve the problem with the render loop (ask the wx guys for more info)
-	wxPaintDC dc(this);
-
-	// if the kinnect is connected, show stream
-	if (AppConfig::GetKinectConnected)
+	// this concerns only the loaded images
+	if (!AppConfig::GetKinectConnected())
 	{
-		// update frame
-		wxImage rgbFrame;
-		wxImage depthFrame;
+		// turn of or on depth buffer drawning
+		if (event.IsChecked())
+		{
+			renderPanel->depthBitmap->Show();
+			renderPanel->rgbBitmap->Hide();
+		}
+		else
+		{
+			renderPanel->depthBitmap->Hide();
+			renderPanel->rgbBitmap->Show();
+		}
 
-		// ask the kinect the new frame
-		rgbFrame.Create(kinect->GetWidthColor(),kinect->GetHeightColor(),kinect->GetUnreliableColorBuffer());
-		// send to bitmap
-		rgbBitmap->SetBitmap(rgbFrame);
-	}
-}
-
-void MainPanel::OnShowDepthBuffer
-	(wxCommandEvent &event)
-{
-	// turn of or on depth buffer drawning
-	if (event.IsChecked())
-	{
-		depthBitmap->Show();
-	}
-	else
-	{
-		depthBitmap->Hide();
+		renderPanel->Refresh();
 	}
 }
 
@@ -140,12 +122,13 @@ void MainPanel::OnLoadImageButton(wxCommandEvent& WXUNUSED(event))
 				depthBufferRender[b+1] = value;
 				depthBufferRender[b+2] = value;
 			}
-			depthBufferRender = InvertLines(depthBufferRender,sizeDepth.x,sizeDepth.y,3);
+
+			//depthBufferRender = InvertLines(depthBufferRender,sizeDepth.x,sizeDepth.y,3);
 			depthFrame.Create(sizeDepth.x,sizeDepth.y,depthBufferRender);
 
 			// show on the screen
-			depthBitmap->SetBitmap(depthFrame);
-			rgbBitmap->SetBitmap(rgbFrame);
+			renderPanel->depthBitmap->SetBitmap(depthFrame);
+			renderPanel->rgbBitmap->SetBitmap(rgbFrame);
 			// NO MEMORY LEAKS!
 			delete depthBufferRender;
 
@@ -154,6 +137,8 @@ void MainPanel::OnLoadImageButton(wxCommandEvent& WXUNUSED(event))
 			generateModel->Enable();
 
 			this->Refresh();
+			renderPanel->Refresh();
+			
 		}	
 	}
 
@@ -192,49 +177,16 @@ void MainPanel::OnConnectKinect(wxCommandEvent& WXUNUSED(event))
 	// enable this
 	showDepthButton->Enable();
 
+	// disable staticbitmaps
+	renderPanel->rgbBitmap->Hide();
+	renderPanel->depthBitmap->Hide();
+
 	// continue to init routine
-	this->ChangeLoopMode(true);
+	renderPanel->ChangeLoopMode(true);
 
 	// set global option
 	AppConfig::SetKinectConnected(true);
 }
 
-void MainPanel::ChangeLoopMode(bool loopMode)
-{
-	// change loop mode based on parameter
-	if (!loopMode)
-	{
-		if (timer != NULL)
-		{
-			delete timer;
-			timer = NULL;
-		}
-	}
-	else if (loopMode)
-	{
-		// create timer
-		timer = new RenderTimer(this);
-		timer->Start();
-	}
-}
 
 
-
-/* RENDERTIMER class */
-
-RenderTimer::RenderTimer(MainPanel* viewport)
-{
-	// copy pointer to call drawn inside notify
-	this->viewport = viewport;
-}
-
-void RenderTimer::Start()
-{
-	wxTimer::Start(30);
-}
-
-void RenderTimer::Notify()
-{
-	// update panel view
-	viewport->Refresh(false);
-}

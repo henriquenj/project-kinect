@@ -36,6 +36,9 @@
     <ClCompile Include="MainPanel.cpp">
       <Filter>Code\Interface</Filter>
     </ClCompile>
+    <ClCompile Include="RenderPanel.cpp">
+      <Filter>Code\Interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KinectSensor.h">
@@ -63,6 +66,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="MainPanel.h">
+      <Filter>Code\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPanel.h">
       <Filter>Code\Interface</Filter>
     </ClInclude>
   </ItemGroup>

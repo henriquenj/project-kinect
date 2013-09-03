@@ -149,8 +149,7 @@ void KinectSensor::NewVideoFrame()
 		// lock thread
 		EnterCriticalSection(&criticalSection);
 		// copy to local data
-		// and also invert data
-		InvertBufferBGRA((BYTE*)LockedRect.pBits,colorBuffer,colorBufferWidth,colorBufferHeight);
+		memcpy(colorBuffer,(BYTE*)LockedRect.pBits,colorBufferWidth * colorBufferHeight * 4);	
 		// unlock thread
 		LeaveCriticalSection(&criticalSection);
 	}
@@ -185,8 +184,10 @@ void KinectSensor::NewDepthFrame()
     {
 		// critical section
 		EnterCriticalSection(&criticalSection);
-		//copy to local data and invert
-		InvertBuffer((short*)LockedRect.pBits,depthBuffer,depthBufferWidth,depthBufferHeight,1);
+		//copy to local data
+		memcpy(depthBuffer,(short*)LockedRect.pBits,depthBufferWidth * depthBufferHeight * sizeof(short));
+		//InvertBuffer((short*)LockedRect.pBits,depthBuffer,depthBufferWidth,depthBufferHeight,1);
+		
 
 		LeaveCriticalSection(&criticalSection);
 	}
@@ -243,8 +244,17 @@ BYTE* KinectSensor::GetColorBuffer()
 	//lock thread
 	EnterCriticalSection(&criticalSection);
 	// copy data
-	BYTE* newBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 4];
-	memcpy(newBuffer,colorBuffer,colorBufferWidth*colorBufferHeight*4);
+	BYTE* newBuffer = new BYTE[colorBufferWidth * colorBufferHeight * 3];
+	//memcpy(newBuffer,colorBuffer,colorBufferWidth*colorBufferHeight*4);
+
+	for (int a = 0, b = 0; a < colorBufferWidth * colorBufferHeight * 3;a+=3,b+=4)
+	{
+		newBuffer[a] = colorBuffer[b+2];
+		newBuffer[a+1] = colorBuffer[b+1];
+		newBuffer[a+2] = colorBuffer[b];
+	}
+
+	
 
 	LeaveCriticalSection(&criticalSection);
 

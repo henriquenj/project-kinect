@@ -8,11 +8,9 @@
 #include "glm\glm.hpp"
 #include "UtilitiesFunctions.h"
 #include "ModelBuilder.h"
+#include "RenderPanel.h"
 
-
-class RenderTimer;
-
-/* MainPanel implements the panel interface that'll control the loop */
+/* MainPanel implements the panel interface that'll control most part of the interface */
 class MainPanel : public wxPanel
 {
 public:
@@ -21,14 +19,8 @@ public:
 		const wxSize& size = wxDefaultSize);
 
 	virtual ~MainPanel();
-
-	/* change loop mode: true for looping and false for non-loopig
-		the default is FALSE*/
-	void ChangeLoopMode(bool loopMode);
 	
 	// callback functions
-	// render function
-	void OnPaint(wxPaintEvent &event);
 	// called each time someone resize the window
 	void OnSize(wxSizeEvent &event);
 	// event functions
@@ -42,8 +34,8 @@ public:
 	void OnConnectKinect(wxCommandEvent &event);
 
 private:
-	// our timer
-	RenderTimer* timer;
+	// our friendly render panel
+	RenderPanel* renderPanel;
 	// instance of kinect sensor, default is NULL (no device connected)
 	KinectSensor* kinect;
 	// loaded frames
@@ -53,30 +45,17 @@ private:
 	short* depthBuffer;
 	wxString loadedImagePath; // the path of currently loaded picture
 
-	// static bitmap will render the loaded image on the screen
-	wxStaticBitmap* rgbBitmap;
-	wxStaticBitmap* depthBitmap;
-
 	// buttons of the interface
 	wxButton* loadImageButton;
 	wxCheckBox* showDepthButton;
 	wxButton* generateModel;
 	wxButton* connectKinect;
 
+	friend class RenderPanel;
+
 };
 
-/*RenderTimer class implements the timer which will control the render loop */
-class RenderTimer : public wxTimer
-{
-public:
-	RenderTimer(MainPanel* viewport);
-	//start the timer with interval of 10 miliseconds
-	void Start();
-	// functiona callback to becalled upon need to redraw
-	void Notify();
-private:
-	MainPanel* viewport;
-};
+
 
 
 
