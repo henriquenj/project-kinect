@@ -99,6 +99,7 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="MainPanel.cpp" />
     <ClCompile Include="ModelBuilder.cpp" />
+    <ClCompile Include="RenderPanel.cpp" />
     <ClCompile Include="UtilitiesFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +111,7 @@
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="MainPanel.h" />
     <ClInclude Include="ModelBuilder.h" />
+    <ClInclude Include="RenderPanel.h" />
     <ClInclude Include="UtilitiesFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
