@@ -32,6 +32,8 @@ public:
 	void OnGenerateModel(wxCommandEvent &event);
 	// called to change loop mode and transmit input from kinect
 	void OnConnectKinect(wxCommandEvent &event);
+	// called to save a frame
+	void OnSaveFrame(wxCommandEvent &event);
 
 private:
 	// our friendly render panel
@@ -48,8 +50,9 @@ private:
 	// buttons of the interface
 	wxButton* loadImageButton;
 	wxCheckBox* showDepthButton;
-	wxButton* generateModel;
-	wxButton* connectKinect;
+	wxButton* generateModelButton;
+	wxButton* connectKinectButton;
+	wxButton* saveBufferButton;
 
 	friend class RenderPanel;
 

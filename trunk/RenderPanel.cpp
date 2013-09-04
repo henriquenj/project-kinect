@@ -34,7 +34,7 @@ void RenderPanel::ChangeLoopMode(bool loopMode)
 			timer = NULL;
 		}
 	}
-	else if (loopMode)
+	else
 	{
 		// create timer
 		timer = new RenderTimer(this);
@@ -85,8 +85,8 @@ void RenderPanel::OnPaint(wxPaintEvent& WXUNUSED(event))
 			}
 
 			delete depthBuffer;
-
 			finalFrame.Create(kinect->GetWidthDepth(),kinect->GetHeightDepth(),depthFrameRGB);
+			finalFrame = finalFrame.Rotate(3.14,wxPoint(finalFrame.GetWidth()/2,finalFrame.GetHeight()/2));
 		}
 		// put on the screen
 		dc.DrawBitmap(finalFrame,wxPoint(0,0));
