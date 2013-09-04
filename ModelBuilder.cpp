@@ -124,7 +124,7 @@ void ModelBuilder::BuildPolygon(glm::uvec2 &size,short* depthBuffer, int* nullPi
 
 		// compute texture coordinates for this pixel
 		float vtx, vty;
-		vtx = currentPosition.x * fractionOfPixelX;
+		vtx = -(currentPosition.x * fractionOfPixelX);
 		vty = currentPosition.y * fractionOfPixelY;
 		texturesCoord.push_back(glm::vec2(vtx,vty));
 

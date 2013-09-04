@@ -10,6 +10,7 @@ MainPanel::MainPanel(wxWindow *parent, wxWindowID id,const wxPoint& pos, const w
 	this->Connect(K_LoadImage,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnLoadImageButton));
 	this->Connect(K_GenerateModel,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnGenerateModel));
 	this->Connect(K_ConnectKinect,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnConnectKinect));
+	this->Connect(K_SaveBuffer,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(MainPanel::OnSaveFrame));
 
 	// assuming no Kinect device connected
 	kinect = NULL;
@@ -30,14 +31,16 @@ MainPanel::MainPanel(wxWindow *parent, wxWindowID id,const wxPoint& pos, const w
 	// load image interface area 
 	/* Add button */
 	loadImageButton = new wxButton(this,K_LoadImage,_("Load Saved Kinect Image"),wxPoint(660,20));
-	generateModel = new wxButton(this,K_GenerateModel,_("Generate Model"),wxPoint(660,60));
-	generateModel->Disable();
+	generateModelButton = new wxButton(this,K_GenerateModel,_("Generate Model"),wxPoint(660,60));
+	generateModelButton->Disable();
 	// add static box to load image interface portion
 	wxStaticBox* loadImageBox = new wxStaticBox(this,wxID_ANY,_("Work with previously saved images"),wxPoint(650,0),wxSize(250,100));
 
 	// work with kinect area
 	/* Add buttons */
-	connectKinect = new wxButton(this,K_ConnectKinect,_("Connect Kinect"),wxPoint(660,160));
+	connectKinectButton = new wxButton(this,K_ConnectKinect,_("Connect Kinect"),wxPoint(660,160));
+	saveBufferButton = new wxButton(this,K_SaveBuffer,_("Save frame"),wxPoint(660,200));
+	saveBufferButton->Disable();
 	// add statc box to that area
 	wxStaticBox* connecKinnectArea = new wxStaticBox(this,wxID_ANY,_("Work with Kinect"),wxPoint(650,140),wxSize(250,130));
 
@@ -89,6 +92,20 @@ void MainPanel::OnLoadImageButton(wxCommandEvent& WXUNUSED(event))
 		wxString filepathDepth = wxString::FromUTF8(ShowFileDialog(0,DialogOpen,".dep files","*.dep*"));
 		if (!filepathDepth.IsEmpty())
 		{
+			// cancel connection with the kinect if there's one
+			if (AppConfig::GetKinectConnected())
+			{
+				//cancel connection
+				AppConfig::SetKinectConnected(false);
+				// remove kinect object
+				delete kinect;
+				// change render loop mode
+				renderPanel->ChangeLoopMode(false);
+				// and finally change the buttons again
+				connectKinectButton->Enable();
+				saveBufferButton->Disable();
+			}
+			
 
 			// delete previously loaded buffer
 			if (depthBuffer != NULL)
@@ -125,19 +142,20 @@ void MainPanel::OnLoadImageButton(wxCommandEvent& WXUNUSED(event))
 
 			//depthBufferRender = InvertLines(depthBufferRender,sizeDepth.x,sizeDepth.y,3);
 			depthFrame.Create(sizeDepth.x,sizeDepth.y,depthBufferRender);
+			depthFrame = depthFrame.Rotate(3.14,wxPoint(depthFrame.GetWidth()/2,depthFrame.GetHeight()/2));
 
 			// show on the screen
 			renderPanel->depthBitmap->SetBitmap(depthFrame);
 			renderPanel->rgbBitmap->SetBitmap(rgbFrame);
+			renderPanel->rgbBitmap->Show();
 			// NO MEMORY LEAKS!
-			delete depthBufferRender;
+			//delete depthBufferRender;
 
 			loadedImagePath = filepathRGB;
 			showDepthButton->Enable();
-			generateModel->Enable();
+			generateModelButton->Enable();
 
 			this->Refresh();
-			renderPanel->Refresh();
 			
 		}	
 	}
@@ -171,11 +189,11 @@ void MainPanel::OnConnectKinect(wxCommandEvent& WXUNUSED(event))
 	delete colorBuffer;
 
 	// disable other interface
-	loadImageButton->Disable();
-	generateModel->Disable();
-	connectKinect->Disable();
+	generateModelButton->Disable();
+	connectKinectButton->Disable();
 	// enable this
 	showDepthButton->Enable();
+	saveBufferButton->Enable();
 
 	// disable staticbitmaps
 	renderPanel->rgbBitmap->Hide();
@@ -186,6 +204,38 @@ void MainPanel::OnConnectKinect(wxCommandEvent& WXUNUSED(event))
 
 	// set global option
 	AppConfig::SetKinectConnected(true);
+}
+
+void MainPanel::OnSaveFrame(wxCommandEvent& WXUNUSED(event))
+{
+	// save current frame on disk, first the rgb file and them the depth file
+	//first get the buffers
+	BYTE* colorbuffer_l = kinect->GetColorBuffer();
+	short* depthbuffer_l = kinect->GetDepthBuffer();
+	
+	const char* filepath = ShowFileDialog(0,DialogSave,"PNG Files (*.png)","*.png");
+	if (filepath != NULL)
+	{
+		// convert to image
+		wxImage rgbFrame;
+		rgbFrame.Create(kinect->GetWidthColor(),kinect->GetHeightColor(),colorbuffer_l);
+		//colorbuffer = InvertLines(colorbuffer,kinect->GetWidthColor(),kinect->GetHeightColor(),4);
+		// dump color buffer to a PNG file
+		std::string filepath_str(filepath);
+		AddExtensionWithChecking(filepath_str,std::string("png"),std::string("png"));
+		// dump to hard drive
+		rgbFrame.SaveFile(wxString(filepath_str.c_str(), wxConvUTF8));
+	}
+	filepath = ShowFileDialog(0,DialogSave,".dep files","*.dep*");
+	if (filepath != NULL)
+	{
+		std::string filepath_str(filepath);
+		AddExtensionWithChecking(filepath_str,std::string("dep"),std::string("dep"));
+		// dump depth buffer to a file
+		DumpDepthBuffer(depthbuffer_l,kinect->GetWidthDepth(),kinect->GetHeightDepth(),filepath_str.c_str());
+	}
+	delete colorbuffer_l;
+	delete depthbuffer_l;
 }
 
 

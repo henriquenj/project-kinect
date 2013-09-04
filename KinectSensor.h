@@ -67,6 +67,9 @@ public:
 		return isReady;
 	}
 
+	static void InvertBuffer(short* rawBuffer, short* newBuffer,int width, int height, int bpc);
+	static void InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, int height);
+
 private:
 	// handle to control kinect's buffers
 	HANDLE colorVideoStreamHandle, depthStreamHandle;
@@ -81,9 +84,6 @@ private:
 	void NewVideoFrame();
 	// to be called when there's a new depth frame
 	void NewDepthFrame();
-
-	void InvertBuffer(short* rawBuffer, short* newBuffer,int width, int height, int bpc);
-	void InvertBufferBGRA(BYTE* rawBuffer, BYTE* newBuffer,int width, int height);
 
 	// the buffers
 	BYTE* colorBuffer;
