@@ -1,0 +1,1 @@
+Academic project to create a application that uses the Kinect SDK
